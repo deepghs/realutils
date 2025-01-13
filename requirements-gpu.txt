@@ -1,1 +1,1 @@
-dghs-realutils[gpu]
+dghs-imgutils[gpu]
