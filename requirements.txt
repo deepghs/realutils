@@ -1,0 +1,16 @@
+hbutils>=0.9.0
+pillow
+numpy<2
+scikit-learn
+huggingface_hub
+tqdm
+opencv-python
+opencv-contrib-python
+pandas
+scipy
+emoji>=2.5.0,<2.12
+pilmoji>=1.3.0
+deprecation>=2.0.0
+hfutils>=0.4.2
+filelock
+dghs-realutils>=0.8.0
