@@ -12,3 +12,4 @@ tensorboard
 onnxslim
 transformers
 thop
+tabulate
