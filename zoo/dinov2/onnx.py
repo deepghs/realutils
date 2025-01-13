@@ -37,7 +37,7 @@ def onnx_export(save_path: str, model_name: str = 'facebook/dinov2-base'):
 
     def verify_onnx():
         onnx_model = onnx.load(save_path)
-        onnx.checker.check_model(onnx_model)
+        onnx.checker.check_model(save_path)
         session = InferenceSession(save_path)
         input_name = session.get_inputs()[0].name
         input_data = dummy_input.numpy()
