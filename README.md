@@ -19,5 +19,5 @@
 [![Contributors](https://img.shields.io/github/contributors/deepghs/realutils)](https://github.com/deepghs/realutils/graphs/contributors)
 [![GitHub license](https://img.shields.io/github/license/deepghs/realutils)](https://github.com/deepghs/realutils/blob/master/LICENSE)
 
-A convenient and user-friendly image data processing library that integrates various advanced image processing models.
+(WIP) A convenient and user-friendly image data processing library that integrates various advanced image processing models.
 
