@@ -104,17 +104,6 @@ jobs:
           dot -V
           python -m pip install -r requirements.txt
           python -m pip install -r requirements-doc.txt
-      - name: Prepare dataset
-        uses: nick-fields/retry@v2
-        env:
-          CI: 'true'
-        with:
-          shell: bash
-          timeout_minutes: 20
-          max_attempts: 5
-          retry_on: any
-          command: |
-            make dataset
       - name: Sync from ref
         if: ${{ github.event_name == 'push' }}
         run: |
