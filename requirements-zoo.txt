@@ -11,3 +11,4 @@ di-toolkit
 tensorboard
 onnxslim
 transformers
+thop
