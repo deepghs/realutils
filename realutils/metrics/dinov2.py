@@ -1,5 +1,10 @@
+import json
+
 import numpy as np
 from PIL import Image
+from huggingface_hub import hf_hub_download
+from imgutils.data import ImageTyping, load_image
+from imgutils.utils import open_onnx_model, ts_lru_cache, vreplace
 
 _DEFAULT = object()
 _DEFAULT_SIZE = {"shortest_edge": 256}
@@ -67,3 +72,47 @@ def _dinov2_preprocess_image(
         img_array = (img_array - mean) / std
 
     return img_array
+
+
+_REPO = 'deepghs/dinov2_onnx'
+_DEFAULT_MODEL = 'facebook/dinov2-base'
+
+
+@ts_lru_cache()
+def _get_preprocess_config(model_name: str):
+    with open(hf_hub_download(
+            repo_id=_REPO,
+            repo_type='model',
+            filename=f'{model_name}/preprocess.json'
+    ), 'r') as f:
+        return json.load(f)
+
+
+@ts_lru_cache()
+def _get_dinov2_model(model_name: str):
+    return open_onnx_model(hf_hub_download(
+        repo_id=_REPO,
+        repo_type='model',
+        filename=f'{model_name}/model.onnx'
+    ))
+
+
+def get_dinov2_embedding(image: ImageTyping, model_name: str = _DEFAULT_MODEL, fmt='embedding'):
+    image = load_image(image, force_background='white', mode='RGB')
+    preprocess_config = _get_preprocess_config(model_name)
+    assert preprocess_config["image_processor_type"] == "BitImageProcessor", \
+        f'Unsupported preprocessor - {preprocess_config["image_processor_type"]!r}'
+    del preprocess_config["image_processor_type"]
+
+    data = _dinov2_preprocess_image(image, **preprocess_config)
+    data = data.astype(np.float32)
+    last_hidden_state, pooler_output = _get_dinov2_model(model_name).run(
+        ['last_hidden_state', 'pooler_output'],
+        {'input': data[None, ...]},
+    )
+
+    return vreplace(fmt, {
+        'embedding': pooler_output[0],
+        'pooler_output': pooler_output[0],
+        'last_hidden_state': last_hidden_state[0],
+    })
