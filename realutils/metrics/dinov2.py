@@ -5,6 +5,8 @@ Overview:
 
     The module supports different DINOv2 model variants and provides configurable preprocessing options.
 
+    The ONNX models are hosted on `deepghs/dinov2_onnx <https://huggingface.co/deepghs/dinov2_onnx>`_.
+
     This is an overall benchmark of all the dinov2 models:
 
     .. image:: dinov2_benchmark.plot.py.svg
@@ -185,6 +187,13 @@ def get_dinov2_embedding(image: ImageTyping, model_name: str = _DEFAULT_MODEL, f
 
     :return: Image embeddings in requested format
     :rtype: numpy.ndarray
+
+    :example:
+        >>> from realutils.metrics import get_dinov2_embedding
+        >>>
+        >>> embedding = get_dinov2_embedding('unsplash_0aLd44ICcpg.jpg')
+        >>> embedding.shape
+        (768,)
     """
     image = load_image(image, force_background='white', mode='RGB')
     preprocess_config = copy.deepcopy(_get_preprocess_config(model_name))
