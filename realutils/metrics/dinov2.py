@@ -44,7 +44,7 @@ def _dinov2_preprocess_image(
         elif 'width' in size and 'height' in size:
             new_h, new_w = size['height'], size['width']
         else:
-            raise ValueError(f'Invalid resize - {size!r}.')
+            raise ValueError(f'Invalid resize - {size!r}.')  # pragma: no cover
         image = Image.fromarray(img_array)
         image = image.resize((new_w, new_h), resample=resample)
         img_array = np.array(image)
