@@ -4,7 +4,17 @@ import numpy as np
 import pytest
 
 from realutils.metrics import get_dinov2_embedding
+from realutils.metrics.dinov2 import _get_dinov2_model, _get_preprocess_config
 from test.testings import get_testfile
+
+
+@pytest.fixture(scope='module', autouse=True)
+def _release_model():
+    try:
+        yield
+    finally:
+        _get_dinov2_model.cache_clear()
+        _get_preprocess_config.cache_clear()
 
 
 @pytest.mark.unittest

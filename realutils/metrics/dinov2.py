@@ -1,8 +1,14 @@
 """
-This module provides functionality for generating embeddings from images using the DINOv2 model.
-It includes utilities for image preprocessing and model inference using ONNX runtime.
+Overview:
+    This module provides functionality for generating embeddings from images using the DINOv2 model.
+    It includes utilities for image preprocessing and model inference using ONNX runtime.
 
-The module supports different DINOv2 model variants and provides configurable preprocessing options.
+    The module supports different DINOv2 model variants and provides configurable preprocessing options.
+
+    This is an overall benchmark of all the dinov2 models:
+
+    .. image:: dinov2_benchmark.plot.py.svg
+        :align: center
 """
 
 import copy
