@@ -85,10 +85,18 @@
     
   <h1>Source code for realutils.metrics.dinov2</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module provides functionality for generating embeddings from images using the DINOv2 model.</span>
-<span class="sd">It includes utilities for image preprocessing and model inference using ONNX runtime.</span>
+<span class="sd">Overview:</span>
+<span class="sd">    This module provides functionality for generating embeddings from images using the DINOv2 model.</span>
+<span class="sd">    It includes utilities for image preprocessing and model inference using ONNX runtime.</span>
 
-<span class="sd">The module supports different DINOv2 model variants and provides configurable preprocessing options.</span>
+<span class="sd">    The module supports different DINOv2 model variants and provides configurable preprocessing options.</span>
+
+<span class="sd">    The ONNX models are hosted on `deepghs/dinov2_onnx &lt;https://huggingface.co/deepghs/dinov2_onnx&gt;`_.</span>
+
+<span class="sd">    This is an overall benchmark of all the dinov2 models:</span>
+
+<span class="sd">    .. image:: dinov2_benchmark.plot.py.svg</span>
+<span class="sd">        :align: center</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
@@ -265,6 +273,13 @@
 
 <span class="sd">    :return: Image embeddings in requested format</span>
 <span class="sd">    :rtype: numpy.ndarray</span>
+
+<span class="sd">    :example:</span>
+<span class="sd">        &gt;&gt;&gt; from realutils.metrics import get_dinov2_embedding</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; embedding = get_dinov2_embedding(&#39;unsplash_0aLd44ICcpg.jpg&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; embedding.shape</span>
+<span class="sd">        (768,)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">image</span> <span class="o">=</span> <span class="n">load_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">force_background</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
     <span class="n">preprocess_config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">_get_preprocess_config</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span>

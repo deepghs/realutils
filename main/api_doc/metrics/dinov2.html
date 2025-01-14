@@ -97,9 +97,14 @@
     
   <section id="module-realutils.metrics.dinov2">
 <span id="realutils-metrics-dinov2"></span><h1>realutils.metrics.dinov2<a class="headerlink" href="#module-realutils.metrics.dinov2" title="Permalink to this heading"></a></h1>
-<p>This module provides functionality for generating embeddings from images using the DINOv2 model.
+<dl>
+<dt>Overview:</dt><dd><p>This module provides functionality for generating embeddings from images using the DINOv2 model.
 It includes utilities for image preprocessing and model inference using ONNX runtime.</p>
 <p>The module supports different DINOv2 model variants and provides configurable preprocessing options.</p>
+<p>The ONNX models are hosted on <a class="reference external" href="https://huggingface.co/deepghs/dinov2_onnx">deepghs/dinov2_onnx</a>.</p>
+<p>This is an overall benchmark of all the dinov2 models:</p>
+<img alt="../../_images/dinov2_benchmark.plot.py.svg" class="align-center" src="../../_images/dinov2_benchmark.plot.py.svg" /></dd>
+</dl>
 <section id="get-dinov2-embedding">
 <h2>get_dinov2_embedding<a class="headerlink" href="#get-dinov2-embedding" title="Permalink to this heading"></a></h2>
 <dl class="py function">
@@ -114,7 +119,7 @@ It includes utilities for image preprocessing and model inference using ONNX run
 <li><p>Return embeddings in requested format</p></li>
 </ol>
 </div></blockquote>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> (<em>ImageTyping</em>) – Input image (can be path, URL, PIL Image, etc.)</p></li>
@@ -128,6 +133,15 @@ It includes utilities for image preprocessing and model inference using ONNX run
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+<dt class="field-even">Example<span class="colon">:</span></dt>
+<dd class="field-even"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">realutils.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_dinov2_embedding</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">embedding</span> <span class="o">=</span> <span class="n">get_dinov2_embedding</span><span class="p">(</span><span class="s1">&#39;unsplash_0aLd44ICcpg.jpg&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">embedding</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(768,)</span>
+</pre></div>
+</div>
 </dd>
 </dl>
 </dd></dl>
