@@ -1,3 +1,10 @@
+"""
+This module provides functionality for generating embeddings from images using the DINOv2 model.
+It includes utilities for image preprocessing and model inference using ONNX runtime.
+
+The module supports different DINOv2 model variants and provides configurable preprocessing options.
+"""
+
 import copy
 import json
 
@@ -28,6 +35,45 @@ def _dinov2_preprocess_image(
         image_std: list = _DEFAULT,
         do_convert_rgb: bool = True
 ) -> np.ndarray:
+    """
+    Preprocess an image according to DINOv2 model requirements.
+
+    This function performs several preprocessing steps:
+    1. RGB conversion (optional)
+    2. Resizing (optional)
+    3. Center cropping (optional)
+    4. Pixel value rescaling (optional)
+    5. Channel-first conversion
+    6. Normalization (optional)
+
+    :param image: Input PIL Image
+    :type image: PIL.Image.Image
+    :param do_resize: Whether to resize the image
+    :type do_resize: bool
+    :param size: Resize configuration dict with either 'shortest_edge' or ('height', 'width')
+    :type size: dict
+    :param resample: PIL resample method, default is BICUBIC
+    :type resample: int
+    :param do_center_crop: Whether to perform center cropping
+    :type do_center_crop: bool
+    :param crop_size: Crop size configuration dict with 'height' and 'width'
+    :type crop_size: dict
+    :param do_rescale: Whether to rescale pixel values
+    :type do_rescale: bool
+    :param rescale_factor: Factor to rescale pixel values
+    :type rescale_factor: float
+    :param do_normalize: Whether to normalize the image
+    :type do_normalize: bool
+    :param image_mean: Mean values for normalization
+    :type image_mean: list
+    :param image_std: Standard deviation values for normalization
+    :type image_std: list
+    :param do_convert_rgb: Whether to convert image to RGB
+    :type do_convert_rgb: bool
+
+    :return: Preprocessed image as numpy array
+    :rtype: numpy.ndarray
+    """
     if do_convert_rgb and image.mode != 'RGB':
         image = image.convert('RGB')
 
@@ -81,6 +127,14 @@ _DEFAULT_MODEL = 'facebook/dinov2-base'
 
 @ts_lru_cache()
 def _get_preprocess_config(model_name: str):
+    """
+    Get preprocessing configuration for specified DINOv2 model variant.
+
+    :param model_name: Name of DINOv2 model variant
+    :type model_name: str
+    :return: Preprocessing configuration dictionary
+    :rtype: dict
+    """
     with open(hf_hub_download(
             repo_id=_REPO,
             repo_type='model',
@@ -91,6 +145,13 @@ def _get_preprocess_config(model_name: str):
 
 @ts_lru_cache()
 def _get_dinov2_model(model_name: str):
+    """
+    Load and cache DINOv2 ONNX model.
+
+    :param model_name: Name of DINOv2 model variant
+    :type model_name: str
+    :return: Loaded ONNX model
+    """
     return open_onnx_model(hf_hub_download(
         repo_id=_REPO,
         repo_type='model',
@@ -99,6 +160,26 @@ def _get_dinov2_model(model_name: str):
 
 
 def get_dinov2_embedding(image: ImageTyping, model_name: str = _DEFAULT_MODEL, fmt='embedding', **kwargs):
+    """
+    Generate embeddings from an image using DINOv2 model.
+
+    This function performs the following steps:
+
+        1. Load and preprocess the image
+        2. Run inference using DINOv2 model
+        3. Return embeddings in requested format
+
+    :param image: Input image (can be path, URL, PIL Image, etc.)
+    :type image: ImageTyping
+    :param model_name: Name of DINOv2 model variant to use
+    :type model_name: str
+    :param fmt: Output format ('embedding', 'pooler_output', or 'last_hidden_state')
+    :type fmt: str
+    :param kwargs: Additional preprocessing parameters
+
+    :return: Image embeddings in requested format
+    :rtype: numpy.ndarray
+    """
     image = load_image(image, force_background='white', mode='RGB')
     preprocess_config = copy.deepcopy(_get_preprocess_config(model_name))
     assert preprocess_config["image_processor_type"] == "BitImageProcessor", \
