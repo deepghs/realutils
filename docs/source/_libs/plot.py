@@ -3,12 +3,12 @@ from typing import Tuple, List
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
+from imgutils.data import load_image, grid_transparent, ImageTyping
+from imgutils.detect import detect_censors
+from imgutils.operate.censor_ import censor_areas
+from imgutils.validate.truncate import _mock_load_truncated_images
 
 from cli import _wrap_func_as_cli
-from realutils.data import load_image, grid_transparent, ImageTyping
-from realutils.detect import detect_censors
-from realutils.operate.censor_ import censor_areas
-from realutils.validate.truncate import _mock_load_truncated_images
 
 INCHES_TO_PIXELS = 96
 
