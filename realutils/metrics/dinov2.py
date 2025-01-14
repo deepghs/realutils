@@ -1,3 +1,4 @@
+import copy
 import json
 
 import numpy as np
@@ -97,14 +98,14 @@ def _get_dinov2_model(model_name: str):
     ))
 
 
-def get_dinov2_embedding(image: ImageTyping, model_name: str = _DEFAULT_MODEL, fmt='embedding'):
+def get_dinov2_embedding(image: ImageTyping, model_name: str = _DEFAULT_MODEL, fmt='embedding', **kwargs):
     image = load_image(image, force_background='white', mode='RGB')
-    preprocess_config = _get_preprocess_config(model_name)
+    preprocess_config = copy.deepcopy(_get_preprocess_config(model_name))
     assert preprocess_config["image_processor_type"] == "BitImageProcessor", \
         f'Unsupported preprocessor - {preprocess_config["image_processor_type"]!r}'
     del preprocess_config["image_processor_type"]
 
-    data = _dinov2_preprocess_image(image, **preprocess_config)
+    data = _dinov2_preprocess_image(image, **{**preprocess_config, **kwargs})
     data = data.astype(np.float32)
     last_hidden_state, pooler_output = _get_dinov2_model(model_name).run(
         ['last_hidden_state', 'pooler_output'],

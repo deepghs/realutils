@@ -45,6 +45,10 @@ jobs:
           dot -V
           python -m pip install -r requirements.txt
           python -m pip install -r requirements-doc.txt
+      - name: Download Dataset
+        shell: bash
+        run: |
+          make dataset
       - name: Generate the contents
         if: ${{ github.event_name == 'push' }}
         env:
@@ -108,6 +112,10 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         run: |
           git pull
+      - name: Download Dataset
+        shell: bash
+        run: |
+          make dataset
       - name: Generate
         env:
           ENV_PROD: 'true'

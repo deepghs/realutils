@@ -96,6 +96,10 @@ jobs:
           tree .
           cloc realutils
           cloc test
+      - name: Download Dataset
+        shell: bash
+        run: |
+          make dataset
       - name: Run unittest
         env:
           CI: 'true'

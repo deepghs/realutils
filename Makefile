@@ -41,3 +41,6 @@ docs:
 	$(MAKE) -C "${DOC_DIR}" build
 pdocs:
 	$(MAKE) -C "${DOC_DIR}" prod
+
+dataset:
+	hfutils download -r deepghs/realutils_unittest -a unsplash_1000.zip -o ${TEST_DIR}/testfile/dataset/unsplash_1000
