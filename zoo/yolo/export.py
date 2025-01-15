@@ -47,9 +47,12 @@ def export(repository: str = 'deepghs/yolos',
         best_pt_exp = os.path.join(workdir, 'model.pt')
         logging.info(f'Copying best pt {best_pt!r} to {best_pt_exp!r}')
         state_dict = torch.load(best_pt)
-        state_dict['train_args']['data'] = sha3(state_dict['train_args']['data'].encode(), n=224)
-        state_dict['train_args']['project'] = sha3(state_dict['train_args']['project'].encode(), n=224)
-        if '/' in state_dict['train_args']['model'] or '\\' in state_dict['train_args']['model']:
+        if state_dict['train_args']['data']:
+            state_dict['train_args']['data'] = sha3(state_dict['train_args']['data'].encode(), n=224)
+        if state_dict['train_args']['project']:
+            state_dict['train_args']['project'] = sha3(state_dict['train_args']['project'].encode(), n=224)
+        if state_dict['train_args']['model'] and \
+                '/' in state_dict['train_args']['model'] or '\\' in state_dict['train_args']['model']:
             state_dict['train_args']['model'] = sha3(state_dict['train_args']['model'].encode(), n=224)
         torch.save(state_dict, best_pt_exp)
         # shutil.copy(best_pt, best_pt_exp)
@@ -89,23 +92,23 @@ def export(repository: str = 'deepghs/yolos',
 
 if __name__ == '__main__':
     logging.try_init_root(level=logging.INFO)
-    export(model_name='yolov5nu')
-    export(model_name='yolov5su')
-    export(model_name='yolov5mu')
-    export(model_name='yolov5lu')
-    export(model_name='yolov5xu')
-
-    export(model_name='yolov8n')
-    export(model_name='yolov8s')
-    export(model_name='yolov8m')
-    export(model_name='yolov8l')
-    export(model_name='yolov8x')
-
-    export(model_name='yolov9t')
-    export(model_name='yolov9s')
-    export(model_name='yolov9m')
-    export(model_name='yolov9c')
-    export(model_name='yolov9e')
+    # export(model_name='yolov5nu')
+    # export(model_name='yolov5su')
+    # export(model_name='yolov5mu')
+    # export(model_name='yolov5lu')
+    # export(model_name='yolov5xu')
+    #
+    # export(model_name='yolov8n')
+    # export(model_name='yolov8s')
+    # export(model_name='yolov8m')
+    # export(model_name='yolov8l')
+    # export(model_name='yolov8x')
+    #
+    # export(model_name='yolov9t')
+    # export(model_name='yolov9s')
+    # export(model_name='yolov9m')
+    # export(model_name='yolov9c')
+    # export(model_name='yolov9e')
 
     export(model_name='yolov10n')
     export(model_name='yolov10s')
@@ -119,3 +122,6 @@ if __name__ == '__main__':
     export(model_name='yolo11m')
     export(model_name='yolo11l')
     export(model_name='yolo11x')
+
+    export(model_name='rtdetr-l.pt')
+    export(model_name='rtdetr-x.pt')
