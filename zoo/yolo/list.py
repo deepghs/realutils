@@ -72,7 +72,7 @@ def list_(repository: str, revision: str = 'main'):
         names_map = model.names
         labels = [names_map[i] for i in range(len(names_map))]
         metrics = {
-            key.split('/', maxsplit=1)[-1]: value
+            key.split('/', maxsplit=1)[-1]: f'{value:.3g}'
             for key, value in dict(model.ckpt.get('train_metrics') or {}).items()
             if key.startswith('metrics/')
         }
