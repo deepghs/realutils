@@ -123,5 +123,5 @@ if __name__ == '__main__':
     # export(model_name='yolo11l')
     # export(model_name='yolo11x')
 
-    export(model_name='rtdetr-l')
-    export(model_name='rtdetr-x')
+    export(model_name='rtdetr-l', opset_version=16)
+    export(model_name='rtdetr-x', opset_version=16)
