@@ -52,7 +52,7 @@ def export(repository: str = 'deepghs/yolos',
         if state_dict['train_args']['project']:
             state_dict['train_args']['project'] = sha3(state_dict['train_args']['project'].encode(), n=224)
         if state_dict['train_args']['model'] and \
-                '/' in state_dict['train_args']['model'] or '\\' in state_dict['train_args']['model']:
+                ('/' in state_dict['train_args']['model'] or '\\' in state_dict['train_args']['model']):
             state_dict['train_args']['model'] = sha3(state_dict['train_args']['model'].encode(), n=224)
         torch.save(state_dict, best_pt_exp)
         # shutil.copy(best_pt, best_pt_exp)
