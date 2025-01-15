@@ -29,6 +29,7 @@ configuration file's structure and their versions.
     :caption: API Documentation
 
     api_doc/config/index
+    api_doc/detect/index
     api_doc/metrics/index
 
 .. toctree::
