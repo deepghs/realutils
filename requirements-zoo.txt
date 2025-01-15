@@ -13,3 +13,4 @@ onnxslim
 transformers
 thop
 tabulate
+ultralytics
