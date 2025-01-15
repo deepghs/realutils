@@ -23,6 +23,6 @@ if __name__ == '__main__':
             for i, file in enumerate(glob.glob(os.path.join('yolo', '*.jpg')), start=1)
         ],
         columns=2,
-        figsize=(9, 9),
+        figsize=(9, 6.5),
         autocensor=False,
     )
