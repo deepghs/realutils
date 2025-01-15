@@ -82,52 +82,9 @@ def list_(repository: str, revision: str = 'main'):
             'FLOPS': float_pe(get_flops(model.model) * 1e9),
             'Params': float_pe(get_num_params(model.model)),
         }
+        logging.info(f'Model {name!r}: {row!r}')
 
         row = {**row, **metrics}
-        if hf_fs.exists(hf_fs_path(
-                repo_id=repository,
-                repo_type='model',
-                filename=f'{name}/F1_curve.png',
-                revision=revision,
-        )):
-            file_url = hf_hub_repo_file_url(
-                repo_id=repository,
-                repo_type='model',
-                path=f'{name}/F1_curve.png',
-                revision=revision,
-            )
-            row['F1 Plot'] = f'[plot]({file_url})'
-        else:
-            logging.warning(f'No F1 plot image found for {name!r}.')
-
-        if hf_fs.exists(hf_fs_path(
-                repo_id=repository,
-                repo_type='model',
-                filename=f'{name}/confusion_matrix_normalized.png',
-                revision=revision,
-        )):
-            file_url = hf_hub_repo_file_url(
-                repo_id=repository,
-                repo_type='model',
-                path=f'{name}/confusion_matrix_normalized.png',
-                revision=revision,
-            )
-            row['Confusion'] = f'[confusion]({file_url})'
-        elif hf_fs.exists(hf_fs_path(
-                repo_id=repository,
-                repo_type='model',
-                filename=f'{name}/confusion_matrix.png',
-                revision=revision,
-        )):
-            file_url = hf_hub_repo_file_url(
-                repo_id=repository,
-                repo_type='model',
-                path=f'{name}/confusion_matrix.png',
-                revision=revision,
-            )
-            row['Confusion'] = f'[confusion]({file_url})'
-        else:
-            logging.warning(f'No confusion matrix found for {name!r}.')
         d_labels[name] = labels
         if len(labels) <= 5:
             label_text = ', '.join(map(lambda x: f'`{x}`', labels))
