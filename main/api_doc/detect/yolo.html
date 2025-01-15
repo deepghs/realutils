@@ -111,7 +111,7 @@
 <dt class="sig sig-object py" id="realutils.detect.yolo.detect_by_yolo">
 <span class="sig-prename descclassname"><span class="pre">realutils.detect.yolo.</span></span><span class="sig-name descname"><span class="pre">detect_by_yolo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BinaryIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'yolo11s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iou_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/realutils/detect/yolo.html#detect_by_yolo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#realutils.detect.yolo.detect_by_yolo" title="Permalink to this definition"></a></dt>
 <dd><p>Detect object in generic images.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> (<em>ImageTyping</em>) – The input image to be analyzed. Can be a file path, URL, or image data.</p></li>
@@ -137,6 +137,20 @@ Default is 0.7.</p></li>
 <li><p><strong>ValueError</strong> – If an invalid level is provided.</p></li>
 <li><p><strong>RuntimeError</strong> – If the model fails to load or process the image.</p></li>
 </ul>
+</dd>
+<dt class="field-odd">Exmple<span class="colon">:</span></dt>
+<dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">realutils.detect</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_by_yolo</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detect_by_yolo</span><span class="p">(</span><span class="s1">&#39;yolo/unsplash_aJafJ0sLo6o.jpg&#39;</span><span class="p">)</span>
+<span class="go">[((450, 317, 567, 599), &#39;person&#39;, 0.9004617929458618)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detect_by_yolo</span><span class="p">(</span><span class="s1">&#39;yolo/unsplash_n4qQGOBgI7U.jpg&#39;</span><span class="p">)</span>
+<span class="go">[((73, 101, 365, 409), &#39;vase&#39;, 0.9098997116088867), ((441, 215, 659, 428), &#39;vase&#39;, 0.622944176197052), ((5, 1, 428, 377), &#39;potted plant&#39;, 0.5178268551826477)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detect_by_yolo</span><span class="p">(</span><span class="s1">&#39;yolo/unsplash_vUNQaTtZeOo.jpg&#39;</span><span class="p">)</span>
+<span class="go">[((381, 103, 676, 448), &#39;bird&#39;, 0.9061452150344849)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detect_by_yolo</span><span class="p">(</span><span class="s1">&#39;yolo/unsplash_YZOqXWF_9pk.jpg&#39;</span><span class="p">)</span>
+<span class="go">[((315, 100, 690, 532), &#39;horse&#39;, 0.9453459978103638), ((198, 181, 291, 256), &#39;horse&#39;, 0.917123556137085), ((145, 173, 180, 249), &#39;horse&#39;, 0.7972317337989807), ((660, 138, 701, 170), &#39;horse&#39;, 0.4843617379665375)]</span>
+</pre></div>
+</div>
 </dd>
 </dl>
 </dd></dl>
@@ -180,6 +194,7 @@ Default is 0.7.</p></li>
                 <dl>
                     <dt>Branches</dt>
                         <dd><a href="yolo.html">main</a></dd>
+                        <dd><a href="../../../HEAD/api_doc/detect/yolo.html">HEAD</a></dd>
                 </dl>
         </div>
     </div><script>

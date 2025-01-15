@@ -138,6 +138,18 @@
 
 <span class="sd">    :raises ValueError: If an invalid level is provided.</span>
 <span class="sd">    :raises RuntimeError: If the model fails to load or process the image.</span>
+
+<span class="sd">    :exmple:</span>
+<span class="sd">        &gt;&gt;&gt; from realutils.detect import detect_by_yolo</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; detect_by_yolo(&#39;yolo/unsplash_aJafJ0sLo6o.jpg&#39;)</span>
+<span class="sd">        [((450, 317, 567, 599), &#39;person&#39;, 0.9004617929458618)]</span>
+<span class="sd">        &gt;&gt;&gt; detect_by_yolo(&#39;yolo/unsplash_n4qQGOBgI7U.jpg&#39;)</span>
+<span class="sd">        [((73, 101, 365, 409), &#39;vase&#39;, 0.9098997116088867), ((441, 215, 659, 428), &#39;vase&#39;, 0.622944176197052), ((5, 1, 428, 377), &#39;potted plant&#39;, 0.5178268551826477)]</span>
+<span class="sd">        &gt;&gt;&gt; detect_by_yolo(&#39;yolo/unsplash_vUNQaTtZeOo.jpg&#39;)</span>
+<span class="sd">        [((381, 103, 676, 448), &#39;bird&#39;, 0.9061452150344849)]</span>
+<span class="sd">        &gt;&gt;&gt; detect_by_yolo(&#39;yolo/unsplash_YZOqXWF_9pk.jpg&#39;)</span>
+<span class="sd">        [((315, 100, 690, 532), &#39;horse&#39;, 0.9453459978103638), ((198, 181, 291, 256), &#39;horse&#39;, 0.917123556137085), ((145, 173, 180, 249), &#39;horse&#39;, 0.7972317337989807), ((660, 138, 701, 170), &#39;horse&#39;, 0.4843617379665375)]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">yolo_predict</span><span class="p">(</span>
         <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
@@ -181,6 +193,7 @@
                 <dl>
                     <dt>Branches</dt>
                         <dd><a href="yolo.html">main</a></dd>
+                        <dd><a href="../../../../HEAD/index.html">HEAD</a></dd>
                 </dl>
         </div>
     </div><script>
