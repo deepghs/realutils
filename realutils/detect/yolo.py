@@ -2,7 +2,7 @@
 Overview:
     Detect objects in generic images, using the official pretrained models.
 
-    Models are hosted on `deepghs/yolos <https://huggingface.co/datasets/deepghs/yolos>`_.
+    Models are hosted on `deepghs/yolos <https://huggingface.co/deepghs/yolos>`_.
 
     .. image:: yolo_demo.plot.py.svg
         :align: center
