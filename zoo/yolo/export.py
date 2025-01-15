@@ -124,3 +124,4 @@ if __name__ == '__main__':
 
     export(model_name='rtdetr-l', model_type='rtdetr', opset_version=16)
     export(model_name='rtdetr-x', model_type='rtdetr', opset_version=16)
+ 
