@@ -9,8 +9,36 @@ Overview:
 
     This is an overall benchmark of all the censor detect models:
 
-    .. image:: yolo_benchmark.plot.py.svg
-        :align: center
+    .. collapse:: Overview of YOLOv5 Models
+
+        .. image:: yolov5_benchmark.plot.py.svg
+            :align: center
+
+    .. collapse:: Overview of YOLOv8 Models
+
+        .. image:: yolov8_benchmark.plot.py.svg
+            :align: center
+
+    .. collapse:: Overview of YOLOv9 Models
+
+        .. image:: yolov9_benchmark.plot.py.svg
+            :align: center
+
+    .. collapse:: Overview of YOLOv10 Models
+
+        .. image:: yolov10_benchmark.plot.py.svg
+            :align: center
+
+    .. collapse:: Overview of YOLO11 Models
+        :open:
+
+        .. image:: yolo11_benchmark.plot.py.svg
+            :align: center
+
+    .. collapse:: Overview of RT-DETR Models
+
+        .. image:: rtdetr_benchmark.plot.py.svg
+            :align: center
 
 """
 from typing import List, Tuple
