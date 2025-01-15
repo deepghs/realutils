@@ -13,7 +13,7 @@ from ultralytics import YOLO, RTDETR
 from .onnx import export_yolo_to_onnx
 
 
-def export(repository: str = 'deepghs/yolos',
+def export(repository: str = 'deepghs/yolos', model_type: str = 'yolo',
            level: str = 's', yversion: Union[int, str] = 8, opset_version: int = 14,
            model_name: Optional[str] = None):
     hf_client = get_hf_client()
@@ -37,7 +37,6 @@ def export(repository: str = 'deepghs/yolos',
     else:
         model_file = f'{model_name}.pt'
         model = YOLO(model_file)
-        model_type = 'yolo'
 
     files = []
 
@@ -123,5 +122,5 @@ if __name__ == '__main__':
     # export(model_name='yolo11l')
     # export(model_name='yolo11x')
 
-    export(model_name='rtdetr-l', opset_version=16)
-    export(model_name='rtdetr-x', opset_version=16)
+    export(model_name='rtdetr-l', model_type='rtdetr', opset_version=16)
+    export(model_name='rtdetr-x', model_type='rtdetr', opset_version=16)
