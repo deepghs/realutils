@@ -44,9 +44,9 @@ def detect_by_yolo(image: ImageTyping, model_name: str = _DEFAULT_MODEL,
     :type iou_threshold: float
 
     :return: A list of tuples, each containing:
-             - A tuple of four integers (x0, y0, x1, y1) representing the bounding box
-             - A string indicating the type of detection ('nipple_f', 'penis', or 'pussy')
-             - A float representing the confidence score of the detection
+        - A tuple of four integers (x0, y0, x1, y1) representing the bounding box
+        - A string indicating the type of detection (e.g. 'person', 'cat', etc)
+        - A float representing the confidence score of the detection
     :rtype: List[Tuple[Tuple[int, int, int, int], str, float]]
 
     :raises ValueError: If an invalid level is provided.
