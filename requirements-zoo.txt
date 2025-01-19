@@ -15,3 +15,5 @@ thop
 tabulate
 ultralytics
 timm
+pyarrow
+pandas
