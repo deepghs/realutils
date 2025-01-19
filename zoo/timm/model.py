@@ -22,6 +22,7 @@ from timm.data import resolve_model_data_config, create_transform, infer_imagene
 from torch import nn
 from tqdm import tqdm
 
+from .preprocess import export_trans
 from ..testings import get_testfile
 from ..utils import onnx_optimize
 
@@ -167,6 +168,12 @@ def extract(export_dir: str, model_repo_id: str, pretrained: bool = True, seed: 
             'name': model_repo_id.split('/')[-1],
             'repo_created_at': repo_created_at,
             'model_cls': type(model).__name__,
+            'input_size': dummy_input.shape[2],
+        }, f, indent=4, sort_keys=True)
+
+    with open(os.path.join(export_dir, 'preprocess.json'), 'w') as f:
+        json.dump({
+            'stages': export_trans(transforms),
         }, f, indent=4, sort_keys=True)
 
     onnx_filename = os.path.join(export_dir, 'model.onnx')
@@ -327,6 +334,7 @@ def sync(repository: str = 'deepghs/timms', max_count: int = 100, params_limit: 
                         "Name": f'[{item["name"]}]({hf_hub_repo_url(repo_id=item["repo_id"], repo_type="model")})',
                         'Params': clever_format(item["params"], "%.1f"),
                         'Flops': clever_format(item["flops"], "%.1f"),
+                        'Input Size': item['input_size'],
                         'Can Classify': item['classify_supported'],
                         "Features": item['num_features'],
                         "Classes": item['num_classes'],
@@ -362,7 +370,7 @@ if __name__ == '__main__':
         params_limit=0.02 * 1000 ** 3,
         max_count=10,
     )
-    # repo_id = 'timm/mobilenetv3_large_150d.ra4_e3600_r256_in1k'
+    repo_id = 'timm/mobilenetv3_large_150d.ra4_e3600_r256_in1k'
     # repo_id = 'timm/eva02_large_patch14_clip_336.merged2b'
     # repo_id = 'timm/eva02_large_patch14_clip_336.merged2b_ft_inat21'
     # repo_id = 'timm/convnext_nano.r384_ad_in12k'

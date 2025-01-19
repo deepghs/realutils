@@ -1226,3 +1226,4 @@ fabric.properties
 .tests
 *.onnx
 /meta.json
+/preprocess.json
