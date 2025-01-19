@@ -5,7 +5,9 @@ import os.path
 import random
 from typing import Optional
 
+import numpy as np
 import onnx
+import onnxruntime
 import pandas as pd
 import torch
 from PIL import Image
@@ -211,6 +213,14 @@ def extract(export_dir: str, model_repo_id: str, pretrained: bool = True, seed: 
         logging.info(f'Complete model saving to {onnx_filename!r} ...')
         onnx.save(model, onnx_filename)
 
+        session = onnxruntime.InferenceSession(onnx_filename)
+        o_logits, o_embeddings = session.run(['logits', 'embedding'], {'input': dummy_input.numpy()})
+        emb_1 = o_embeddings / np.linalg.norm(o_embeddings, axis=-1, keepdims=True)
+        emb_2 = conv_features.numpy() / np.linalg.norm(conv_features.numpy(), axis=-1, keepdims=True)
+        emb_sims = (emb_1 * emb_2).sum()
+        logging.info(f'Similarity of the embeddings is {emb_sims:.5f}.')
+        assert emb_sims >= 0.98, f'Similarity of the embeddings is {emb_sims:.5f}, ONNX validation failed.'
+
 
 def sync(repository: str = 'deepghs/timms', max_count: int = 100, params_limit: float = 0.5 * 1000 ** 3):
     hf_client = get_hf_client()
@@ -372,7 +382,7 @@ if __name__ == '__main__':
         params_limit=0.1 * 1000 ** 3,
         max_count=100,
     )
-    repo_id = 'timm/mobilenetv3_large_150d.ra4_e3600_r256_in1k'
+    # repo_id = 'timm/mobilenetv3_large_150d.ra4_e3600_r256_in1k'
     # repo_id = 'timm/eva02_large_patch14_clip_336.merged2b'
     # repo_id = 'timm/eva02_large_patch14_clip_336.merged2b_ft_inat21'
     # repo_id = 'timm/convnext_nano.r384_ad_in12k'
