@@ -13,6 +13,7 @@ from ditk import logging
 from hbutils.random import global_seed
 from hbutils.string import plural_word
 from hbutils.system import TemporaryDirectory
+from hfutils.cache import delete_cache
 from hfutils.operate import get_hf_fs, get_hf_client, upload_directory_as_directory
 from hfutils.repository import hf_hub_repo_url
 from natsort import natsorted
@@ -214,6 +215,7 @@ def extract(export_dir: str, model_repo_id: str, pretrained: bool = True, seed: 
 def sync(repository: str = 'deepghs/timms', max_count: int = 100, params_limit: float = 0.5 * 1000 ** 3):
     hf_client = get_hf_client()
     hf_fs = get_hf_fs()
+    delete_cache()
     if not hf_client.repo_exists(repo_id=repository, repo_type='model'):
         hf_client.create_repo(repo_id=repository, repo_type='model', private=True)
         attr_lines = hf_fs.read_text(f'{repository}/.gitattributes').splitlines(keepends=False)
@@ -367,8 +369,8 @@ if __name__ == '__main__':
     logging.try_init_root(level=logging.INFO)
     sync(
         repository='deepghs/timms',
-        params_limit=0.02 * 1000 ** 3,
-        max_count=10,
+        params_limit=0.1 * 1000 ** 3,
+        max_count=100,
     )
     repo_id = 'timm/mobilenetv3_large_150d.ra4_e3600_r256_in1k'
     # repo_id = 'timm/eva02_large_patch14_clip_336.merged2b'
