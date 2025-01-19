@@ -1225,3 +1225,4 @@ fabric.properties
 /YOLOv8
 .tests
 *.onnx
+/meta.json
