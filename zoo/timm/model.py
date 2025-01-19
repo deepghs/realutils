@@ -381,7 +381,7 @@ if __name__ == '__main__':
         repository='deepghs/timms',
         params_limit=0.1 * 1000 ** 3,
         max_count=100,
-    ) 
+    )
     # repo_id = 'timm/mobilenetv3_large_150d.ra4_e3600_r256_in1k'
     # repo_id = 'timm/eva02_large_patch14_clip_336.merged2b'
     # repo_id = 'timm/eva02_large_patch14_clip_336.merged2b_ft_inat21'
