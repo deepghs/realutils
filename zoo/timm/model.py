@@ -359,7 +359,7 @@ def sync(repository: str = 'deepghs/timms', max_count: int = 100, params_limit: 
                     }
                     for item in df_models.to_dict('records')
                 ])
-                print(f'{plural_word(len(df_shown), "model")} exported from TIMM in total.', file=f)
+                print(f'## {plural_word(len(df_shown), "model")} exported from TIMM in total.', file=f)
                 print(f'', file=f)
 
                 for m_name in natsorted(set(df_shown['Model'])):
