@@ -354,13 +354,25 @@ def sync(repository: str = 'deepghs/timms', max_count: int = 100, params_limit: 
                         'Model': item['model_cls'],
                         'Architecture': item['architecture'],
                         'Created At': datetime.datetime.fromtimestamp(item['repo_created_at']).strftime('%Y-%m-%d'),
+                        'flops': item['flops'],
+                        'created_at': item['repo_created_at'],
                     }
                     for item in df_models.to_dict('records')
                 ])
                 print(f'{plural_word(len(df_shown), "model")} exported from TIMM in total.', file=f)
                 print(f'', file=f)
-                print(df_shown.to_markdown(index=False), file=f)
-                print(f'', file=f)
+
+                for m_name in natsorted(set(df_shown['Model'])):
+                    print(f'{m_name}', file=f)
+                    print(f'', file=f)
+                    df_shown_m = df_shown[df_shown['Model'] == m_name]
+                    df_shown_m = df_shown_m.sort_values(by=['flops', 'created_at'], ascending=[False, False])
+                    del df_shown_m['flops']
+                    del df_shown_m['created_at']
+                    print(f'{plural_word(len(df_shown_m), "model")} with model class `{m_name}`.', file=f)
+                    print(f'', file=f)
+                    print(df_shown_m.to_markdown(index=False), file=f)
+                    print(f'', file=f)
 
             upload_directory_as_directory(
                 repo_id=repository,
