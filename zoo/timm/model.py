@@ -359,11 +359,11 @@ def sync(repository: str = 'deepghs/timms', max_count: int = 100, params_limit: 
                     }
                     for item in df_models.to_dict('records')
                 ])
-                print(f'## {plural_word(len(df_shown), "model")} exported from TIMM in total.', file=f)
+                print(f'{plural_word(len(df_shown), "model")} exported from TIMM in total.', file=f)
                 print(f'', file=f)
 
                 for m_name in natsorted(set(df_shown['Model'])):
-                    print(f'{m_name}', file=f)
+                    print(f'## {m_name}', file=f)
                     print(f'', file=f)
                     df_shown_m = df_shown[df_shown['Model'] == m_name]
                     df_shown_m = df_shown_m.sort_values(by=['flops', 'created_at'], ascending=[False, False])
