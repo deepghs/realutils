@@ -323,7 +323,7 @@ def sync(repository: str = 'deepghs/timms', max_count: int = 100, params_limit: 
                 print('---', file=f)
                 print('pipeline_tag: image-classification', file=f)
                 print('base_model:', file=f)
-                for rid in natsorted(set(df_models['repo_id'])):
+                for rid in natsorted(set(df_models['repo_id'][:100])):
                     print(f'- {rid}', file=f)
                 print('language:', file=f)
                 print('- en', file=f)
