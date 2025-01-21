@@ -391,7 +391,7 @@ if __name__ == '__main__':
     logging.try_init_root(level=logging.INFO)
     sync(
         repository='deepghs/timms',
-        params_limit=0.1 * 1000 ** 3,
+        params_limit=0.3 * 1000 ** 3,
         max_count=100,
     )
     # repo_id = 'timm/mobilenetv3_large_150d.ra4_e3600_r256_in1k'
