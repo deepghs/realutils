@@ -3,7 +3,7 @@ import datetime
 import json
 import os.path
 import random
-from typing import Optional
+from typing import Optional, Callable
 
 import numpy as np
 import onnx
@@ -222,7 +222,8 @@ def extract(export_dir: str, model_repo_id: str, pretrained: bool = True, seed: 
         assert emb_sims >= 0.98, f'Similarity of the embeddings is {emb_sims:.5f}, ONNX validation failed.'
 
 
-def sync(repository: str = 'deepghs/timms', max_count: int = 100, params_limit: float = 0.5 * 1000 ** 3):
+def sync(repository: str = 'deepghs/timms', max_count: int = 100, params_limit: float = 0.5 * 1000 ** 3,
+         name_filter: Optional[Callable[[str, ], bool]] = None):
     hf_client = get_hf_client()
     hf_fs = get_hf_fs()
     delete_cache()
@@ -252,6 +253,8 @@ def sync(repository: str = 'deepghs/timms', max_count: int = 100, params_limit: 
     exported_count = 0
     for model_name in tqdm(all_pretrained, desc='Exporting Models'):
         if model_name.startswith('tf_'):
+            continue
+        if name_filter and not name_filter(model_name):
             continue
 
         model_repo_id = f'timm/{model_name}'
