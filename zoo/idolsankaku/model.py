@@ -220,8 +220,7 @@ def sync(repository: str = 'deepghs/idolsankaku_taggers_with_embeddings'):
         'deepghs/idolsankaku-swinv2-tagger-v1',
         'deepghs/idolsankaku-eva02-large-tagger-v1',
     ]
-    for model_name in tqdm(_KNOWN_TAGGERS, desc='Exporting Models'):
-        model_repo_id = f'timm/{model_name}'
+    for model_repo_id in tqdm(_KNOWN_TAGGERS, desc='Exporting Models'):
         if not hf_client.repo_exists(repo_id=model_repo_id, repo_type='model'):
             logging.warn(f'Repo {model_repo_id!r} not exist, skipped.')
             continue
@@ -229,27 +228,27 @@ def sync(repository: str = 'deepghs/idolsankaku_taggers_with_embeddings'):
         if hf_client.file_exists(
                 repo_id=repository,
                 repo_type='model',
-                filename=f'{model_name}/model.onnx',
+                filename=f'{model_repo_id}/model.onnx',
         ):
-            logging.warn(f'Model {model_name!r} already exported, skipped.')
+            logging.warn(f'Model {model_repo_id!r} already exported, skipped.')
             continue
 
         with TemporaryDirectory() as upload_dir:
-            logging.info(f'Exporting model {model_name!r} ...')
-            os.makedirs(os.path.join(upload_dir, model_name), exist_ok=True)
+            logging.info(f'Exporting model {model_repo_id!r} ...')
+            os.makedirs(os.path.join(upload_dir, model_repo_id), exist_ok=True)
             try:
                 extract(
-                    export_dir=os.path.join(upload_dir, model_name),
+                    export_dir=os.path.join(upload_dir, model_repo_id),
                     model_repo_id=model_repo_id,
                     pretrained=True,
                     seed=0,
                     no_optimize=False,
                 )
             except Exception:
-                logging.exception(f'Error when exporting {model_name!r}, skipped.')
+                logging.exception(f'Error when exporting {model_repo_id!r}, skipped.')
                 continue
 
-            with open(os.path.join(upload_dir, model_name, 'meta.json'), 'r') as f:
+            with open(os.path.join(upload_dir, model_repo_id, 'meta.json'), 'r') as f:
                 meta_info = json.load(f)
             c_meta_info = copy.deepcopy(meta_info)
             d_models[meta_info['name']] = c_meta_info
@@ -286,7 +285,6 @@ def sync(repository: str = 'deepghs/idolsankaku_taggers_with_embeddings'):
                         'Params': clever_format(item["params"], "%.1f"),
                         'Flops': clever_format(item["flops"], "%.1f"),
                         'Input Size': item['input_size'],
-                        'Can Classify': item['classify_supported'],
                         "Features": item['num_features'],
                         "Classes": item['num_classes'],
                         "Dataset": item['dataset'],
@@ -298,6 +296,9 @@ def sync(repository: str = 'deepghs/idolsankaku_taggers_with_embeddings'):
                     }
                     for item in df_models.to_dict('records')
                 ])
+                df_shown = df_shown.sort_values(by=['created_at', 'flops'], ascending=[False, False])
+                del df_shown['created_at']
+                del df_shown['flops']
                 print(f'{plural_word(len(df_shown), "model")} exported from TIMM in total.', file=f)
                 print(f'', file=f)
                 print(df_shown.to_markdown(index=False), file=f)
@@ -308,13 +309,10 @@ def sync(repository: str = 'deepghs/idolsankaku_taggers_with_embeddings'):
                 repo_type='model',
                 local_directory=upload_dir,
                 path_in_repo='.',
-                message=f'Export model {model_name!r}',
+                message=f'Export model {model_repo_id!r}',
             )
 
 
 if __name__ == '__main__':
     logging.try_init_root(level=logging.INFO)
-    extract(
-        export_dir='test_idolsankaku',
-        model_repo_id='deepghs/idolsankaku-swinv2-tagger-v1',
-    )
+    sync()
