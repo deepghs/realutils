@@ -287,7 +287,6 @@ def sync(repository: str = 'deepghs/idolsankaku_taggers_with_embeddings'):
                         'Input Size': item['input_size'],
                         "Features": item['num_features'],
                         "Classes": item['num_classes'],
-                        "Dataset": item['dataset'],
                         'Model': item['model_cls'],
                         'Architecture': item['architecture'],
                         'Created At': datetime.datetime.fromtimestamp(item['repo_created_at']).strftime('%Y-%m-%d'),
