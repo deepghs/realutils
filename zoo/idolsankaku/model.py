@@ -63,7 +63,7 @@ class ModuleWrapper(nn.Module):
 
     def forward(self, x: torch.Tensor):
         logits = self.base_module(x)
-        preds = torch.sigmoid(logits, dim=-1)
+        preds = torch.sigmoid(logits)
 
         if self._output_features is None:
             raise RuntimeError("Target module did not receive any input during forward pass")
