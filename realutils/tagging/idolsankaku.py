@@ -6,7 +6,6 @@ Overview:
     The module is inspired by the `SmilingWolf/wd-tagger <https://huggingface.co/spaces/SmilingWolf/wd-tagger>`_
     project on Hugging Face.
 """
-import json
 from typing import List, Tuple
 
 import numpy as np
@@ -16,7 +15,6 @@ from PIL import Image
 from hbutils.testing.requires.version import VersionInfo
 from huggingface_hub import hf_hub_download
 from imgutils.data import load_image, ImageTyping
-from imgutils.preprocess import create_pillow_transforms
 from imgutils.tagging.format import remove_underline
 from imgutils.tagging.overlap import drop_overlap_tags
 from imgutils.utils import open_onnx_model, vreplace, ts_lru_cache
@@ -70,16 +68,6 @@ def _get_idolsankaku_model(model_name):
 
 
 @ts_lru_cache()
-def _get_idolsankaku_preprocessor(model_name):
-    with open(hf_hub_download(
-            repo_id=EXP_REPO,
-            filename=f'{MODEL_NAMES[model_name]}/preprocess.json',
-    ), 'r') as f:
-        j = json.load(f)['stages']
-        return create_pillow_transforms(j)
-
-
-@ts_lru_cache()
 def _get_idolsankaku_labels(model_name, no_underline: bool = False) -> Tuple[
     List[str], List[int], List[int], List[int]]:
     """
@@ -92,8 +80,10 @@ def _get_idolsankaku_labels(model_name, no_underline: bool = False) -> Tuple[
     :return: A tuple containing the list of tag names, and lists of indexes for rating, general, and character categories.
     :rtype: Tuple[List[str], List[int], List[int], List[int]]
     """
-    path = hf_hub_download(MODEL_NAMES[model_name], LABEL_FILENAME)
-    df = pd.read_csv(path)
+    df = pd.read_csv(hf_hub_download(
+        repo_id=EXP_REPO,
+        filename=f'{MODEL_NAMES[model_name]}/selected_tags.csv',
+    ))
     name_series = df["name"]
     if no_underline:
         name_series = name_series.map(remove_underline)
@@ -151,14 +141,10 @@ def _prepare_image_for_tagging(image: ImageTyping, target_size: int):
 
     if max_dim != target_size:
         padded_image = padded_image.resize((target_size, target_size), Image.BICUBIC)
-    return padded_image
 
-    # return _get_idolsankaku_preprocessor()
-
-    # image_array = np.asarray(padded_image, dtype=np.float32)
-    # image_array = image_array.transpose((2, 0, 1))
-    # # image_array = image_array[:, :, ::-1].transpose((2, 0, 1))
-    # image_array = image_array / 127.5 - 1.0
+    image_array = np.asarray(padded_image, dtype=np.float32)
+    image_array = image_array[:, :, ::-1].transpose((2, 0, 1))
+    image_array = image_array / 127.5 - 1.0
     return np.expand_dims(image_array, axis=0)
 
 
@@ -324,11 +310,7 @@ def get_idolsankaku_tags(
 
     model = _get_idolsankaku_model(model_name)
     _, _, target_size, _ = model.get_inputs()[0].shape
-    image = _prepare_image_for_tagging(image, target_size)
-    preprocessor = _get_idolsankaku_preprocessor(model_name=model_name)
-    input_ = preprocessor(image)[None, ...]
-    print(input_.shape)
-
+    input_ = _prepare_image_for_tagging(image, target_size)
     preds, logits, embeddings = model.run(['output', 'logits', 'embedding'], {'input': input_})
 
     return _postprocess_embedding(
