@@ -1227,3 +1227,4 @@ fabric.properties
 *.onnx
 /meta.json
 /preprocess.json
+venv*
