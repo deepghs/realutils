@@ -191,12 +191,12 @@ def extract(export_dir: str, model_repo_id: str, pretrained: bool = True, seed: 
         assert emb_sims >= 0.98, f'Similarity of the embeddings is {emb_sims:.5f}, ONNX validation failed.'
 
 
-def sync(repository: str = 'deepghs/idolsankaku_taggers_with_embeddings'):
+def sync(repository: str = 'deepghs/idolsankaku_tagger_with_embeddings'):
     hf_client = get_hf_client()
     hf_fs = get_hf_fs()
     delete_detached_cache()
     if not hf_client.repo_exists(repo_id=repository, repo_type='model'):
-        hf_client.create_repo(repo_id=repository, repo_type='model', private=True)
+        hf_client.create_repo(repo_id=repository, repo_type='model', private=False)
         attr_lines = hf_fs.read_text(f'{repository}/.gitattributes').splitlines(keepends=False)
         attr_lines.append('*.json filter=lfs diff=lfs merge=lfs -text')
         attr_lines.append('*.csv filter=lfs diff=lfs merge=lfs -text')

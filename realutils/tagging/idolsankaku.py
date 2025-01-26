@@ -21,7 +21,7 @@ from imgutils.tagging.format import remove_underline
 from imgutils.tagging.overlap import drop_overlap_tags
 from imgutils.utils import open_onnx_model, vreplace, ts_lru_cache
 
-EXP_REPO = 'deepghs/idolsankaku_taggers_with_embeddings'
+EXP_REPO = 'deepghs/idolsankaku_tagger_with_embeddings'
 EVA02_LARGE_MODEL_DSV3_REPO = "deepghs/idolsankaku-eva02-large-tagger-v1"
 SWIN_MODEL_REPO = "deepghs/idolsankaku-swinv2-tagger-v1"
 MODEL_FILENAME = "model.onnx"
