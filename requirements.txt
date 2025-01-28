@@ -14,3 +14,4 @@ deprecation>=2.0.0
 hfutils>=0.4.2
 filelock
 dghs-imgutils>=0.9.2
+tokenizers>=0.20.0
