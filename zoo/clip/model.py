@@ -267,6 +267,8 @@ def sync(repository: str = 'deepghs/clip_onnx'):
         'openai/clip-vit-base-patch32',
         'openai/clip-vit-large-patch14',
         'openai/clip-vit-large-patch14-336',
+        'laion/CLIP-ViT-H-14-laion2B-s32B-b79K',
+        'jinaai/jina-clip-v2',
     ]
     for model_repo_id in tqdm(_KNOWN_MODELS, desc='Exporting Models'):
         if not hf_client.repo_exists(repo_id=model_repo_id, repo_type='model'):
@@ -358,7 +360,7 @@ def sync(repository: str = 'deepghs/clip_onnx'):
 
                 df_shown = pd.DataFrame([
                     {
-                        "Name": f'[{item["name"]}]({hf_hub_repo_url(repo_id=item["repo_id"], repo_type="model")})',
+                        "Name": f'[{item["repo_id"]}]({hf_hub_repo_url(repo_id=item["repo_id"], repo_type="model")})',
                         'Image (Params/FLOPS)': f'{clever_format(item["image_params"], "%.1f")} / {clever_format(item["image_flops"], "%.1f")}',
                         'Image Size': item['image_size'],
                         "Image Width (Enc/Emb)": f'{item["image_encoding_width"]} / {item["image_embedding_width"]}',
