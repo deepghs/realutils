@@ -335,7 +335,7 @@ def sync(repository: str = 'deepghs/clip_onnx'):
 
             with open(os.path.join(upload_dir, 'README.md'), 'w') as f:
                 print('---', file=f)
-                print('pipeline_tag: image-classification', file=f)
+                print('pipeline_tag: zero-shot-classification', file=f)
                 print('base_model:', file=f)
                 for rid in natsorted(set(df_models['repo_id'][:100])):
                     print(f'- {rid}', file=f)
