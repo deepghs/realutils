@@ -91,23 +91,42 @@ def get_clip_text_embedding(texts: Union[str, List[str]], model_name: str = _DEF
     })
 
 
+def classify_with_clip(
+        images: Union[MultiImagesTyping, np.ndarray],
+        texts: Union[List[str], str, np.ndarray],
+        model_name: str = _DEFAULT_MODEL,
+        fmt='predictions',
+):
+    if not isinstance(images, np.ndarray):
+        images = get_clip_image_embedding(images, model_name=model_name, fmt='embeddings')
+    images = images / np.linalg.norm(images, axis=-1, keepdims=True)
+
+    if not isinstance(texts, np.ndarray):
+        texts = get_clip_text_embedding(texts, model_name=model_name, fmt='embeddings')
+    texts = texts / np.linalg.norm(texts, axis=-1, keepdims=True)
+
+    similarities = images @ texts.T
+    logits = similarities * np.exp(_get_logit_scale(_DEFAULT_MODEL))
+    predictions = np.exp(logits) / np.exp(logits).sum(axis=-1, keepdims=True)
+
+    return vreplace(fmt, {
+        'similarities': similarities,
+        'logits': logits,
+        'predictions': predictions,
+    })
+
+
 if __name__ == '__main__':
-    iemb = get_clip_image_embedding([
-        'test_image.jpg',
-        'test/testfile/idolsankaku/3.jpg',
-    ])
-    iemb = iemb / np.linalg.norm(iemb, axis=-1, keepdims=True)
-
-    temb = get_clip_text_embedding([
-        'a photo of a cat',
-        'a photo of a dog',
-        "Hello, this is a test sentence.",
-        'a photo of a human',
-    ])
-    temb = temb / np.linalg.norm(temb, axis=-1, keepdims=True)
-
-    v = iemb @ temb.T
-    vs = v * np.exp(_get_logit_scale(_DEFAULT_MODEL))
-    vt = np.exp(vs) / np.exp(vs).sum(axis=-1, keepdims=True)
-    print(v)
-    print(vt)
+    print(classify_with_clip(
+        images=[
+            'test_image.jpg',
+            'test/testfile/idolsankaku/3.jpg',
+        ],
+        texts=[
+            'a photo of a cat',
+            'a photo of a dog',
+            # "Hello, this is a test sentence.",
+            'a photo of a human',
+        ],
+        model_name='openai/clip-vit-base-patch32'
+    ))
