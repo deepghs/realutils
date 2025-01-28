@@ -267,8 +267,8 @@ def sync(repository: str = 'deepghs/clip_onnx'):
         'openai/clip-vit-base-patch32',
         'openai/clip-vit-large-patch14',
         'openai/clip-vit-large-patch14-336',
-        'laion/CLIP-ViT-H-14-laion2B-s32B-b79K',
-        'jinaai/jina-clip-v2',
+        # 'laion/CLIP-ViT-H-14-laion2B-s32B-b79K',
+        # 'jinaai/jina-clip-v2',
     ]
     for model_repo_id in tqdm(_KNOWN_MODELS, desc='Exporting Models'):
         if not hf_client.repo_exists(repo_id=model_repo_id, repo_type='model'):
