@@ -336,8 +336,8 @@ def sync(repository: str = 'deepghs/siglip_onnx'):
                 'text_encoding_width': text_encoding_width,
                 'text_embedding_width': text_embedding_width,
                 'repo_created_at': repo_created_at,
-                'logit_scale': model_raw.logit_scale.detach().numpy().tolist(),
-                'logit_bias': model_raw.logit_bias.detach().numpy().tolist(),
+                'logit_scale': model_raw.logit_scale.detach().numpy().item(),
+                'logit_bias': model_raw.logit_bias.detach().numpy().item(),
             }
             with open(os.path.join(upload_dir, model_repo_id, 'meta.json'), 'w') as f:
                 json.dump(meta_info, f, sort_keys=True, indent=4)
