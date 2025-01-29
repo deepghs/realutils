@@ -424,8 +424,8 @@ def sync(repository: str = 'deepghs/siglip_onnx'):
 
 if __name__ == '__main__':
     logging.try_init_root(level=logging.INFO)
-    # sync()
-    repo_id = "google/siglip-base-patch16-256-multilingual"
+    sync()
+    # repo_id = "google/siglip-base-patch16-256-multilingual"
     #
     # model_raw = get_siglip_model(repo_id)
     # processor, dummy_input = get_dummy_input(repo_id)
@@ -433,4 +433,4 @@ if __name__ == '__main__':
     # # export_text_to_onnx(model_raw, dummy_input)
     # # export_image_to_onnx(model_raw, dummy_input)
     # export_image_preprocessor(processor.image_processor)
-    export_text_tokenizer(repo_id)
+    # export_text_tokenizer(repo_id)
