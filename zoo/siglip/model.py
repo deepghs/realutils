@@ -255,7 +255,7 @@ def export_text_tokenizer(repo_id: str,
         inputs = processor(text=texts_to_test, images=image,
                            return_tensors="pt", padding='max_length')
         expected_input_ids = inputs.input_ids.numpy()
-        encoded = actual_tokenizer.encode_batch(texts_to_test)
+        encoded = actual_tokenizer.encode_batch(texts_to_test )
         actual_input_ids = np.stack([np.array(item.ids, dtype=np.int64) for item in encoded])
         np.testing.assert_allclose(expected_input_ids, actual_input_ids)
 
