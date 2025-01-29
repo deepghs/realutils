@@ -270,10 +270,6 @@ def sync(repository: str = 'deepghs/siglip_onnx'):
         d_models = {}
 
     _KNOWN_MODELS = [
-        'google/siglip-so400m-patch14-384',
-        'google/siglip-so400m-patch14-224',
-        'google/siglip-so400m-patch16-256-i18n',
-
         'google/siglip-base-patch16-256-multilingual',
         'google/siglip-base-patch16-224',
         'google/siglip-base-patch16-512',
@@ -281,6 +277,10 @@ def sync(repository: str = 'deepghs/siglip_onnx'):
         'google/siglip-base-patch16-384',
         'google/siglip-large-patch16-384',
         'google/siglip-base-patch16-256'
+
+        'google/siglip-so400m-patch14-384',
+        'google/siglip-so400m-patch14-224',
+        'google/siglip-so400m-patch16-256-i18n',
     ]
     for model_repo_id in tqdm(_KNOWN_MODELS, desc='Exporting Models'):
         if not hf_client.repo_exists(repo_id=model_repo_id, repo_type='model'):
