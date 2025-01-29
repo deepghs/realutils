@@ -17,3 +17,5 @@ ultralytics
 timm
 pyarrow
 pandas
+tokenizer
+sentensepiece
