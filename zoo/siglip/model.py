@@ -270,11 +270,11 @@ def sync(repository: str = 'deepghs/siglip_onnx'):
         d_models = {}
 
     _KNOWN_MODELS = [
-        'google/siglip-so400m-patch14-384',
-        'google/siglip-so400m-patch14-224',
+        # 'google/siglip-so400m-patch14-384',
+        # 'google/siglip-so400m-patch14-224',
         'google/siglip-base-patch16-256-multilingual',
         'google/siglip-base-patch16-224',
-        'google/siglip-so400m-patch16-256-i18n',
+        # 'google/siglip-so400m-patch16-256-i18n',
         'google/siglip-base-patch16-512',
         'google/siglip-large-patch16-256',
         'google/siglip-base-patch16-384',
