@@ -276,7 +276,7 @@ def sync(repository: str = 'deepghs/siglip_onnx'):
         'google/siglip-large-patch16-256',
         'google/siglip-base-patch16-384',
         'google/siglip-large-patch16-384',
-        'google/siglip-base-patch16-256'
+        'google/siglip-base-patch16-256',
 
         'google/siglip-so400m-patch14-384',
         'google/siglip-so400m-patch14-224',
