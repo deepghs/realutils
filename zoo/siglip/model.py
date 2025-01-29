@@ -69,7 +69,8 @@ def get_dummy_input(model_name: str):
     processor = SiglipProcessor.from_pretrained(model_name)
 
     image = Image.open(get_testfile('clip_cat.jpg'))
-    inputs = processor(text=["a photo of a cat", "a photo of a dog"], images=image, return_tensors="pt", padding=True)
+    inputs = processor(text=["a photo of a cat", "a photo of a dog"], images=image,
+                       return_tensors="pt", padding='max_length')
     return processor, inputs
 
 
@@ -229,6 +230,7 @@ def export_text_tokenizer(repo_id: str,
         filename='tokenizer.json',
     ))
     tokenizer.enable_padding(
+        length=64,
         direction='right',
         pad_id=1,
         pad_type_id=0,
@@ -237,9 +239,26 @@ def export_text_tokenizer(repo_id: str,
 
     with TemporaryDirectory() as td:
         logging.info(f'Saving full pretrained to {td!r} ...')
-        tokenizer.save(os.path.join(td, 'tokenizer.json'))
-
         src_tokenizer_file = os.path.join(td, 'tokenizer.json')
+        tokenizer.save(src_tokenizer_file)
+
+        logging.info('Validating tokenizer ...')
+        actual_tokenizer = Tokenizer.from_file(src_tokenizer_file)
+        image = Image.open(get_testfile('clip_cat.jpg'))
+        texts_to_test = [
+            "a photo of a cat",
+            "a photo of a dog",
+            "Hello, this is a test sentence.",
+            'a photo of a human',
+        ]
+        processor = SiglipProcessor.from_pretrained(repo_id)
+        inputs = processor(text=texts_to_test, images=image,
+                           return_tensors="pt", padding='max_length')
+        expected_input_ids = inputs.input_ids.numpy()
+        encoded = actual_tokenizer.encode_batch(texts_to_test)
+        actual_input_ids = np.stack([np.array(item.ids, dtype=np.int64) for item in encoded])
+        np.testing.assert_allclose(expected_input_ids, actual_input_ids)
+
         logging.info(f'Copying {src_tokenizer_file!r} to {tokenizer_file!r} ...')
         shutil.copyfile(src_tokenizer_file, tokenizer_file)
 
@@ -405,8 +424,8 @@ def sync(repository: str = 'deepghs/siglip_onnx'):
 
 if __name__ == '__main__':
     logging.try_init_root(level=logging.INFO)
-    sync()
-    # repo_id = "google/siglip-base-patch16-256-multilingual"
+    # sync()
+    repo_id = "google/siglip-base-patch16-256-multilingual"
     #
     # model_raw = get_siglip_model(repo_id)
     # processor, dummy_input = get_dummy_input(repo_id)
@@ -414,4 +433,4 @@ if __name__ == '__main__':
     # # export_text_to_onnx(model_raw, dummy_input)
     # # export_image_to_onnx(model_raw, dummy_input)
     # export_image_preprocessor(processor.image_processor)
-    # export_text_tokenizer(repo_id)
+    export_text_tokenizer(repo_id)
