@@ -1,3 +1,5 @@
+import copy
+import datetime
 import json
 import os.path
 import shutil
@@ -6,13 +8,20 @@ from tempfile import TemporaryDirectory
 import numpy as np
 import onnx
 import onnxruntime
+import pandas as pd
 import torch.nn
 from PIL import Image
 from ditk import logging
+from hbutils.string import plural_word
+from hfutils.cache import delete_detached_cache
+from hfutils.operate import get_hf_client, get_hf_fs, upload_directory_as_directory
+from hfutils.repository import hf_hub_repo_url
 from huggingface_hub import hf_hub_download
 from imgutils.preprocess import create_transforms_from_transformers, parse_pillow_transforms
+from natsort import natsorted
 from thop import clever_format, profile
 from tokenizers import Tokenizer
+from tqdm import tqdm
 from transformers import SiglipImageProcessor, SiglipModel, SiglipProcessor
 
 from zoo.testings import get_testfile
@@ -235,14 +244,173 @@ def export_text_tokenizer(repo_id: str,
         shutil.copyfile(src_tokenizer_file, tokenizer_file)
 
 
+def sync(repository: str = 'deepghs/siglip_onnx'):
+    hf_client = get_hf_client()
+    hf_fs = get_hf_fs()
+    delete_detached_cache()
+    if not hf_client.repo_exists(repo_id=repository, repo_type='model'):
+        hf_client.create_repo(repo_id=repository, repo_type='model', private=False)
+        attr_lines = hf_fs.read_text(f'{repository}/.gitattributes').splitlines(keepends=False)
+        attr_lines.append('*.json filter=lfs diff=lfs merge=lfs -text')
+        attr_lines.append('*.csv filter=lfs diff=lfs merge=lfs -text')
+        hf_fs.write_text(f'{repository}/.gitattributes', os.linesep.join(attr_lines))
+
+    if hf_client.file_exists(
+            repo_id=repository,
+            repo_type='model',
+            filename='models.parquet',
+    ):
+        df_models = pd.read_parquet(hf_client.hf_hub_download(
+            repo_id=repository,
+            repo_type='model',
+            filename='models.parquet',
+        ))
+        d_models = {item['name']: item for item in df_models.to_dict('records')}
+    else:
+        d_models = {}
+
+    _KNOWN_MODELS = [
+        'google/siglip-so400m-patch14-384',
+        'google/siglip-so400m-patch14-224',
+        'google/siglip-base-patch16-256-multilingual',
+        'google/siglip-base-patch16-224',
+        'google/siglip-so400m-patch16-256-i18n',
+        'google/siglip-base-patch16-512',
+        'google/siglip-large-patch16-256',
+        'google/siglip-base-patch16-384',
+        'google/siglip-large-patch16-384',
+        'google/siglip-base-patch16-256'
+    ]
+    for model_repo_id in tqdm(_KNOWN_MODELS, desc='Exporting Models'):
+        if not hf_client.repo_exists(repo_id=model_repo_id, repo_type='model'):
+            logging.warn(f'Repo {model_repo_id!r} not exist, skipped.')
+            continue
+
+        if hf_client.file_exists(
+                repo_id=repository,
+                repo_type='model',
+                filename=f'{model_repo_id}/image_encode.onnx',
+        ):
+            logging.warn(f'Model {model_repo_id!r} already exported, skipped.')
+            continue
+
+        with TemporaryDirectory() as upload_dir:
+            logging.info(f'Exporting model {model_repo_id!r} ...')
+            os.makedirs(os.path.join(upload_dir, model_repo_id), exist_ok=True)
+
+            repo_created_at = hf_client.repo_info(repo_id=model_repo_id, repo_type='model').created_at.timestamp()
+
+            processor, dummy_input = get_dummy_input(model_repo_id)
+            model_raw = get_siglip_model(model_repo_id)
+
+            (img_flops, img_params), input_img_size, (img_encoding_width, img_embedding_width) = export_image_to_onnx(
+                model_raw=model_raw,
+                dummy_input=dummy_input,
+                export_onnx_file=os.path.join(upload_dir, model_repo_id, 'image_encode.onnx'),
+            )
+            (text_flops, text_params), (text_encoding_width, text_embedding_width) = export_text_to_onnx(
+                model_raw=model_raw,
+                dummy_input=dummy_input,
+                export_onnx_file=os.path.join(upload_dir, model_repo_id, 'text_encode.onnx'),
+            )
+            export_image_preprocessor(
+                preprocessor=processor.image_processor,
+                preprocessor_file=os.path.join(upload_dir, model_repo_id, 'preprocessor.json')
+            )
+            export_text_tokenizer(
+                repo_id=model_repo_id,
+                tokenizer_file=os.path.join(upload_dir, model_repo_id, 'tokenizer.json'),
+            )
+
+            meta_info = {
+                'name': model_repo_id.split('/')[-1],
+                'repo_id': model_repo_id,
+                'image_flops': img_flops,
+                'image_params': img_params,
+                'image_size': input_img_size,
+                'image_encoding_width': img_encoding_width,
+                'image_embedding_width': img_embedding_width,
+                'text_flops': text_flops,
+                'text_params': text_params,
+                'text_encoding_width': text_encoding_width,
+                'text_embedding_width': text_embedding_width,
+                'repo_created_at': repo_created_at,
+                'logit_scale': model_raw.logit_scale.detach().numpy().tolist(),
+                'logit_bias': model_raw.logit_bias.detach().numpy().tolist(),
+            }
+            with open(os.path.join(upload_dir, model_repo_id, 'meta.json'), 'w') as f:
+                json.dump(meta_info, f, sort_keys=True, indent=4)
+
+            c_meta_info = copy.deepcopy(meta_info)
+            d_models[meta_info['name']] = c_meta_info
+
+            df_models = pd.DataFrame(list(d_models.values()))
+            df_models = df_models.sort_values(by=['repo_created_at'], ascending=False)
+            df_models.to_parquet(os.path.join(upload_dir, 'models.parquet'), index=False)
+
+            with open(os.path.join(upload_dir, 'README.md'), 'w') as f:
+                print('---', file=f)
+                print('pipeline_tag: zero-shot-classification', file=f)
+                print('base_model:', file=f)
+                for rid in natsorted(set(df_models['repo_id'][:100])):
+                    print(f'- {rid}', file=f)
+                print('language:', file=f)
+                print('- en', file=f)
+                print('tags:', file=f)
+                print('- transformers', file=f)
+                print('- siglip', file=f)
+                print('- image', file=f)
+                print('- dghs-realutils', file=f)
+                print('library_name: dghs-realutils', file=f)
+                print('---', file=f)
+                print('', file=f)
+
+                print('ONNX exported version of SigLIP models.', file=f)
+                print('', file=f)
+
+                print(f'# Models', file=f)
+                print(f'', file=f)
+
+                df_shown = pd.DataFrame([
+                    {
+                        "Name": f'[{item["repo_id"]}]({hf_hub_repo_url(repo_id=item["repo_id"], repo_type="model")})',
+                        'Image (Params/FLOPS)': f'{clever_format(item["image_params"], "%.1f")} / {clever_format(item["image_flops"], "%.1f")}',
+                        'Image Size': item['image_size'],
+                        "Image Width (Enc/Emb)": f'{item["image_encoding_width"]} / {item["image_embedding_width"]}',
+                        'Text (Params/FLOPS)': f'{clever_format(item["text_params"], "%.1f")} / {clever_format(item["text_flops"], "%.1f")}',
+                        "Text Width (Enc/Emb)": f'{item["text_encoding_width"]} / {item["text_embedding_width"]}',
+                        'Created At': datetime.datetime.fromtimestamp(item['repo_created_at']).strftime('%Y-%m-%d'),
+                        'flops': item['image_flops'],
+                        'created_at': item['repo_created_at'],
+                    }
+                    for item in df_models.to_dict('records')
+                ])
+                df_shown = df_shown.sort_values(by=['created_at', 'flops'], ascending=[False, False])
+                del df_shown['created_at']
+                del df_shown['flops']
+                print(f'{plural_word(len(df_shown), "model")} exported in total.', file=f)
+                print(f'', file=f)
+                print(df_shown.to_markdown(index=False), file=f)
+                print(f'', file=f)
+
+            upload_directory_as_directory(
+                repo_id=repository,
+                repo_type='model',
+                local_directory=upload_dir,
+                path_in_repo='.',
+                message=f'Export model {model_repo_id!r}',
+            )
+
+
 if __name__ == '__main__':
     logging.try_init_root(level=logging.INFO)
-    repo_id = "google/siglip-base-patch16-256-multilingual"
-
-    model_raw = get_siglip_model(repo_id)
-    processor, dummy_input = get_dummy_input(repo_id)
-
-    # export_text_to_onnx(model_raw, dummy_input)
-    # export_image_to_onnx(model_raw, dummy_input)
-    export_image_preprocessor(processor.image_processor)
-    export_text_tokenizer(repo_id)
+    sync()
+    # repo_id = "google/siglip-base-patch16-256-multilingual"
+    #
+    # model_raw = get_siglip_model(repo_id)
+    # processor, dummy_input = get_dummy_input(repo_id)
+    #
+    # # export_text_to_onnx(model_raw, dummy_input)
+    # # export_image_to_onnx(model_raw, dummy_input)
+    # export_image_preprocessor(processor.image_processor)
+    # export_text_tokenizer(repo_id)
