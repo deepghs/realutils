@@ -54,20 +54,25 @@ def detect_real_faces(image: ImageTyping, model_name: str = 'yolov11s-face',
              - The confidence score of the detection
     :rtype: List[Tuple[Tuple[int, int, int, int], str, float]]
 
-    Examples::
-        >>> from imgutils.detect import detect_faces, detection_visualize
+    :example:
+        >>> from realutils.detect import detect_real_faces
         >>>
-        >>> image = 'mostima_post.jpg'
-        >>> result = detect_faces(image)  # detect it
-        >>> result
-        [
-            ((29, 441, 204, 584), 'face', 0.7874319553375244),
-            ((346, 59, 529, 275), 'face', 0.7510495185852051),
-            ((606, 51, 895, 336), 'face', 0.6986488103866577)
-        ]
+        >>> detect_real_faces('yolo/solo.jpg')
+        [((168, 79, 245, 199), 'face', 0.7996422052383423)]
+        >>> detect_real_faces('yolo/2girls.jpg')
+        [((721, 152, 1082, 726), 'face', 0.8811314702033997), ((158, 263, 509, 714), 'face', 0.8745490908622742)]
+        >>> detect_real_faces('yolo/3+cosplay.jpg')
+        [((351, 228, 410, 302), 'face', 0.8392542600631714), ((384, 63, 427, 116), 'face', 0.8173024654388428), ((195, 109, 246, 161), 'face', 0.8126493692398071)]
+        >>> detect_real_faces('yolo/multiple.jpg')
+        [((1074, 732, 1258, 987), 'face', 0.8792377710342407), ((1378, 536, 1541, 716), 'face', 0.8607611656188965), ((554, 295, 759, 557), 'face', 0.8541485071182251), ((897, 315, 1068, 520), 'face', 0.8539882898330688), ((1194, 230, 1329, 403), 'face', 0.8324605226516724)]
+
+        >>> from imgutils.detect import detection_visualize
+        >>> from matplotlib import pyplot as plt
+        >>>
+        >>> image = 'yolo/solo.jpg'
+        >>> result = detect_real_faces(image)
         >>>
         >>> # visualize it
-        >>> from matplotlib import pyplot as plt
         >>> plt.imshow(detection_visualize(image, result))
         >>> plt.show()
     """
