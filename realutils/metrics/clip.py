@@ -1,3 +1,17 @@
+"""
+CLIP (Contrastive Language-Image Pre-training) model utilities' module.
+
+This module provides functions for working with CLIP models, including image and text embedding
+generation and classification. It supports loading ONNX-converted CLIP models from Hugging Face Hub
+and performing inference for both image and text inputs.
+
+All models and preprocessors are hosted on Huggingface
+repository `deepghs/clip_onnx <https://huggingface.co/deepghs/clip_onnx>`_
+
+
+
+"""
+
 import json
 from typing import List, Union
 
@@ -14,6 +28,15 @@ _DEFAULT_MODEL = 'openai/clip-vit-base-patch32'
 
 @ts_lru_cache()
 def _open_image_encoder(model_name: str):
+    """
+    Open and cache the CLIP image encoder model.
+
+    :param model_name: Name of the CLIP model variant
+    :type model_name: str
+
+    :return: Loaded ONNX model for image encoding
+    :rtype: ONNXModel
+    """
     return open_onnx_model(hf_hub_download(
         repo_id=_REPO_ID,
         repo_type='model',
@@ -23,6 +46,15 @@ def _open_image_encoder(model_name: str):
 
 @ts_lru_cache()
 def _open_image_preprocessor(model_name: str):
+    """
+    Open and cache the image preprocessor configuration.
+
+    :param model_name: Name of the CLIP model variant
+    :type model_name: str
+
+    :return: Configured image preprocessing transforms
+    :rtype: callable
+    """
     with open(hf_hub_download(
             repo_id=_REPO_ID,
             repo_type='model',
@@ -33,6 +65,15 @@ def _open_image_preprocessor(model_name: str):
 
 @ts_lru_cache()
 def _open_text_encoder(model_name: str):
+    """
+    Open and cache the CLIP text encoder model.
+
+    :param model_name: Name of the CLIP model variant
+    :type model_name: str
+
+    :return: Loaded ONNX model for text encoding
+    :rtype: ONNXModel
+    """
     return open_onnx_model(hf_hub_download(
         repo_id=_REPO_ID,
         repo_type='model',
@@ -42,6 +83,15 @@ def _open_text_encoder(model_name: str):
 
 @ts_lru_cache()
 def _open_text_tokenizer(model_name: str):
+    """
+    Open and cache the text tokenizer.
+
+    :param model_name: Name of the CLIP model variant
+    :type model_name: str
+
+    :return: Loaded tokenizer
+    :rtype: Tokenizer
+    """
     return Tokenizer.from_file(hf_hub_download(
         repo_id=_REPO_ID,
         repo_type='model',
@@ -51,6 +101,15 @@ def _open_text_tokenizer(model_name: str):
 
 @ts_lru_cache()
 def _get_logit_scale(model_name: str):
+    """
+    Get and cache the logit scale factor for the model.
+
+    :param model_name: Name of the CLIP model variant
+    :type model_name: str
+
+    :return: Logit scale value
+    :rtype: float
+    """
     with open(hf_hub_download(
             repo_id=_REPO_ID,
             repo_type='model',
@@ -60,6 +119,19 @@ def _get_logit_scale(model_name: str):
 
 
 def get_clip_image_embedding(images: MultiImagesTyping, model_name: str = _DEFAULT_MODEL, fmt='embeddings'):
+    """
+    Generate CLIP embeddings for input images.
+
+    :param images: Input images to encode
+    :type images: MultiImagesTyping
+    :param model_name: Name of the CLIP model to use
+    :type model_name: str
+    :param fmt: Output format ('embeddings' or 'encodings')
+    :type fmt: str
+
+    :return: Image embeddings or encodings based on fmt parameter
+    :rtype: numpy.ndarray
+    """
     preprocessor = _open_image_preprocessor(model_name)
     model = _open_image_encoder(model_name)
 
@@ -73,6 +145,19 @@ def get_clip_image_embedding(images: MultiImagesTyping, model_name: str = _DEFAU
 
 
 def get_clip_text_embedding(texts: Union[str, List[str]], model_name: str = _DEFAULT_MODEL, fmt='embeddings'):
+    """
+    Generate CLIP embeddings for input texts.
+
+    :param texts: Input text or list of texts to encode
+    :type texts: Union[str, List[str]]
+    :param model_name: Name of the CLIP model to use
+    :type model_name: str
+    :param fmt: Output format ('embeddings' or 'encodings')
+    :type fmt: str
+
+    :return: Text embeddings or encodings based on fmt parameter
+    :rtype: numpy.ndarray
+    """
     tokenizer = _open_text_tokenizer(model_name)
     model = _open_text_encoder(model_name)
 
@@ -97,6 +182,21 @@ def classify_with_clip(
         model_name: str = _DEFAULT_MODEL,
         fmt='predictions',
 ):
+    """
+    Perform classification using CLIP model by comparing image and text embeddings.
+
+    :param images: Input images or pre-computed image embeddings
+    :type images: Union[MultiImagesTyping, numpy.ndarray]
+    :param texts: Input texts or pre-computed text embeddings
+    :type texts: Union[List[str], str, numpy.ndarray]
+    :param model_name: Name of the CLIP model to use
+    :type model_name: str
+    :param fmt: Output format ('predictions', 'similarities', or 'logits')
+    :type fmt: str
+
+    :return: Classification results based on fmt parameter
+    :rtype: numpy.ndarray
+    """
     if not isinstance(images, np.ndarray):
         images = get_clip_image_embedding(images, model_name=model_name, fmt='embeddings')
     images = images / np.linalg.norm(images, axis=-1, keepdims=True)
