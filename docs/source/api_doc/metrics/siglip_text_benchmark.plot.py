@@ -1,7 +1,7 @@
 import random
 
 from benchmark import BaseBenchmark, create_plot_cli
-from realutils.metrics.clip import get_siglip_text_embedding
+from realutils.metrics.siglip import get_siglip_text_embedding
 
 
 class SigLIPTextBenchmark(BaseBenchmark):

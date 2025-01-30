@@ -6,6 +6,17 @@ Overview:
 
     All models and preprocessors are hosted on Huggingface
     repository `deepghs/siglip_onnx <https://huggingface.co/deepghs/siglip_onnx>`_
+
+    .. image:: siglip_demo.plot.py.svg
+        :align: center
+
+    This is an overall benchmark of all the SigLIP models:
+
+    .. image:: siglip_image_benchmark.plot.py.svg
+        :align: center
+
+    .. image:: siglip_text_benchmark.plot.py.svg
+        :align: center
 """
 
 import json
