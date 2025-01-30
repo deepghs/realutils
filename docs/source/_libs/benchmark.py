@@ -1,3 +1,4 @@
+import copy
 import glob
 import multiprocessing
 import os
@@ -19,11 +20,51 @@ from conf import PROJ_DIR
 from plot import INCHES_TO_PIXELS
 
 _DEFAULT_IMAGE_POOL = glob.glob(os.path.join(PROJ_DIR, 'test', 'testfile', 'dataset', '**', '*.jpg'), recursive=True)
+_DEFAULT_TEXT_POOL = [
+    "sunset",
+    "red apple",
+    "happy dogs",
+    "flying birds",
+    "ocean waves",
+    "cat sleeping in sunlight",
+    "fresh bread from bakery",
+    "children playing with bubbles",
+    "snow falling at night",
+    "green leaves in spring",
+    "a group of friends having coffee together",
+    "beautiful flowers blooming in the garden path",
+    "old bicycle leaning against brick wall outside",
+    "young artist painting landscape in the park",
+    "tourists taking photos at famous landmarks today",
+    "the ancient castle stands majestically on top of the misty mountain",
+    "a small fishing boat gently rocks on the calm blue sea",
+    "colorful butterflies flutter around the bright purple wildflowers in meadow",
+    "professional chef preparing gourmet dishes in modern restaurant kitchen",
+    "street musician playing violin under the warm glow of streetlights",
+    "the golden retriever puppy chases its tail while playing in the fresh green grass",
+    "morning sunlight streams through stained glass windows of the historic gothic cathedral",
+    "experienced rock climber carefully makes her way up the challenging vertical cliff face",
+    "talented ballet dancers perform gracefully on stage during the annual winter performance",
+    "local farmers selling fresh organic vegetables and fruits at the weekend market",
+    "the skilled photographer captures stunning images of wild animals in their natural habitat during golden hour",
+    "a diverse group of students from different countries share their cultural experiences in the university campus",
+    "the old bookstore with wooden shelves filled with rare books and antique manuscripts attracts curious visitors",
+    "professional surfers ride massive waves while spectators watch in amazement from the sandy beach",
+    "experienced hikers trek through dense forest following ancient trails marked by indigenous communities",
+    "the bustling night market filled with street food vendors cooking traditional dishes while locals and tourists browse colorful stalls under lantern light",
+    "talented street artists create impressive murals on city walls using vibrant colors and innovative techniques to tell stories about local culture",
+    "dedicated scientists working in advanced laboratories conduct groundbreaking research using state-of-the-art equipment to solve complex medical problems",
+    "the annual cultural festival brings together people from diverse backgrounds to celebrate with traditional music performances dance shows art exhibitions and food stalls representing different regions",
+    "skilled craftsmen in the traditional workshop carefully restore antique furniture using time-honored techniques passed down through generations while teaching apprentices their valuable skills",
+    "the innovative sustainable urban farm project combines modern hydroponics technology with traditional farming methods to grow organic vegetables fruits and herbs while educating local communities about sustainable agriculture practices",
+    "professional wildlife photographers spend months in remote locations documenting rare animal species and their behaviors while working with conservation teams to protect endangered habitats and raise awareness"
+]
 
 
 class BaseBenchmark:
     def __init__(self):
-        self.all_images = _DEFAULT_IMAGE_POOL
+        self.all_images = copy.deepcopy(_DEFAULT_IMAGE_POOL)
+        self.all_texts = copy.deepcopy(_DEFAULT_TEXT_POOL)
 
     def prepare(self):
         pass

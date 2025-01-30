@@ -1,14 +1,26 @@
 """
-CLIP (Contrastive Language-Image Pre-training) model utilities' module.
+Overview:
+    CLIP (Contrastive Language-Image Pre-training) model utilities' module.
 
-This module provides functions for working with CLIP models, including image and text embedding
-generation and classification. It supports loading ONNX-converted CLIP models from Hugging Face Hub
-and performing inference for both image and text inputs.
+    This module provides functions for working with CLIP models, including image and text embedding
+    generation and classification. It supports loading ONNX-converted CLIP models from Hugging Face Hub
+    and performing inference for both image and text inputs.
 
-All models and preprocessors are hosted on Huggingface
-repository `deepghs/clip_onnx <https://huggingface.co/deepghs/clip_onnx>`_
+    All models and preprocessors are hosted on Huggingface
+    repository `deepghs/clip_onnx <https://huggingface.co/deepghs/clip_onnx>`_
 
+    .. collapse:: Overview of CLIP (NSFW Warning!!!)
 
+        .. image:: clip_demo.plot.py.svg
+            :align: center
+
+    This is an overall benchmark of all the CLIP models:
+
+    .. image:: clip_image_benchmark.plot.py.svg
+        :align: center
+
+    .. image:: clip_text_benchmark.plot.py.svg
+        :align: center
 
 """
 
@@ -131,6 +143,19 @@ def get_clip_image_embedding(images: MultiImagesTyping, model_name: str = _DEFAU
 
     :return: Image embeddings or encodings based on fmt parameter
     :rtype: numpy.ndarray
+
+    :example:
+        >>> from realutils.metrics.clip import get_clip_image_embedding
+        >>>
+        >>> # one image
+        >>> emb = get_clip_image_embedding('xlip/1.jpg')
+        >>> emb.shape, emb.dtype
+        ((1, 512), dtype('float32'))
+        >>>
+        >>> # multiple images
+        >>> emb = get_clip_image_embedding(['xlip/1.jpg', 'xlip/2.jpg'])
+        >>> emb.shape, emb.dtype
+        ((2, 512), dtype('float32'))
     """
     preprocessor = _open_image_preprocessor(model_name)
     model = _open_image_encoder(model_name)
@@ -157,6 +182,23 @@ def get_clip_text_embedding(texts: Union[str, List[str]], model_name: str = _DEF
 
     :return: Text embeddings or encodings based on fmt parameter
     :rtype: numpy.ndarray
+
+    :example:
+        >>> from realutils.metrics.clip import get_clip_text_embedding
+        >>>
+        >>> # one text
+        >>> emb = get_clip_text_embedding('a photo of a cat')
+        >>> emb.shape, emb.dtype
+        ((1, 512), dtype('float32'))
+        >>>
+        >>> # multiple texts
+        >>> emb = get_clip_text_embedding([
+        ...     'a photo of a cat',
+        ...     'a photo of a dog',
+        ...     'a photo of a human',
+        ... ])
+        >>> emb.shape, emb.dtype
+        ((3, 512), dtype('float32'))
     """
     tokenizer = _open_text_tokenizer(model_name)
     model = _open_text_encoder(model_name)
@@ -196,6 +238,23 @@ def classify_with_clip(
 
     :return: Classification results based on fmt parameter
     :rtype: numpy.ndarray
+
+    :example:
+        >>> from realutils.metrics.clip import classify_with_clip
+        >>>
+        >>> classify_with_clip(
+        ...     images=[
+        ...         'xlip/1.jpg',
+        ...         'xlip/2.jpg'
+        ...     ],
+        ...     texts=[
+        ...         'a photo of a cat',
+        ...         'a photo of a dog',
+        ...         'a photo of a human',
+        ...     ],
+        ... )
+        array([[0.98039913, 0.00506729, 0.01453355],
+               [0.05586662, 0.02006196, 0.92407143]], dtype=float32)
     """
     if not isinstance(images, np.ndarray):
         images = get_clip_image_embedding(images, model_name=model_name, fmt='embeddings')
