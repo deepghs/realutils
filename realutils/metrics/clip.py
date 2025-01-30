@@ -114,19 +114,3 @@ def classify_with_clip(
         'logits': logits,
         'predictions': predictions,
     })
-
-
-if __name__ == '__main__':
-    print(classify_with_clip(
-        images=[
-            'test_image.jpg',
-            'test/testfile/idolsankaku/3.jpg',
-        ],
-        texts=[
-            'a photo of a cat',
-            'a photo of a dog',
-            # "Hello, this is a test sentence.",
-            'a photo of a human',
-        ],
-        model_name='openai/clip-vit-base-patch32'
-    ))

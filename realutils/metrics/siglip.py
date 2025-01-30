@@ -124,8 +124,10 @@ if __name__ == '__main__':
         ],
         texts=[
             'a photo of a cat',
-            'a photo of a dog',
+            'a photo of 2 cats',
+            'a photo of 2 dogs',
             # "Hello, this is a test sentence.",
-            'a photo of a human',
+            'a photo of a woman',
+            'a photo of 2 women',
         ],
     ))
