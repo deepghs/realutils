@@ -101,142 +101,34 @@
 <span class="sd">        :align: center</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">hf_hub_download</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageTyping</span><span class="p">,</span> <span class="n">load_image</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.preprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_pillow_transforms</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_onnx_model</span><span class="p">,</span> <span class="n">ts_lru_cache</span><span class="p">,</span> <span class="n">vreplace</span>
-
-<span class="n">_DEFAULT</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
-<span class="n">_DEFAULT_SIZE</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;shortest_edge&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">}</span>
-<span class="n">_DEFAULT_CROP_SIZE</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="mi">224</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">224</span><span class="p">}</span>
-<span class="n">_DEFAULT_MEAN</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">]</span>
-<span class="n">_DEFAULT_STD</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">]</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_dinov2_preprocess_image</span><span class="p">(</span>
-        <span class="n">image</span><span class="p">:</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">,</span>
-        <span class="n">do_resize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">size</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">_DEFAULT</span><span class="p">,</span>
-        <span class="n">resample</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>  <span class="c1"># BICUBIC</span>
-        <span class="n">do_center_crop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">crop_size</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">_DEFAULT</span><span class="p">,</span>
-        <span class="n">do_rescale</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">rescale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">255</span><span class="p">,</span>
-        <span class="n">do_normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">image_mean</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">_DEFAULT</span><span class="p">,</span>
-        <span class="n">image_std</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">_DEFAULT</span><span class="p">,</span>
-        <span class="n">do_convert_rgb</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Preprocess an image according to DINOv2 model requirements.</span>
-
-<span class="sd">    This function performs several preprocessing steps:</span>
-<span class="sd">    1. RGB conversion (optional)</span>
-<span class="sd">    2. Resizing (optional)</span>
-<span class="sd">    3. Center cropping (optional)</span>
-<span class="sd">    4. Pixel value rescaling (optional)</span>
-<span class="sd">    5. Channel-first conversion</span>
-<span class="sd">    6. Normalization (optional)</span>
-
-<span class="sd">    :param image: Input PIL Image</span>
-<span class="sd">    :type image: PIL.Image.Image</span>
-<span class="sd">    :param do_resize: Whether to resize the image</span>
-<span class="sd">    :type do_resize: bool</span>
-<span class="sd">    :param size: Resize configuration dict with either &#39;shortest_edge&#39; or (&#39;height&#39;, &#39;width&#39;)</span>
-<span class="sd">    :type size: dict</span>
-<span class="sd">    :param resample: PIL resample method, default is BICUBIC</span>
-<span class="sd">    :type resample: int</span>
-<span class="sd">    :param do_center_crop: Whether to perform center cropping</span>
-<span class="sd">    :type do_center_crop: bool</span>
-<span class="sd">    :param crop_size: Crop size configuration dict with &#39;height&#39; and &#39;width&#39;</span>
-<span class="sd">    :type crop_size: dict</span>
-<span class="sd">    :param do_rescale: Whether to rescale pixel values</span>
-<span class="sd">    :type do_rescale: bool</span>
-<span class="sd">    :param rescale_factor: Factor to rescale pixel values</span>
-<span class="sd">    :type rescale_factor: float</span>
-<span class="sd">    :param do_normalize: Whether to normalize the image</span>
-<span class="sd">    :type do_normalize: bool</span>
-<span class="sd">    :param image_mean: Mean values for normalization</span>
-<span class="sd">    :type image_mean: list</span>
-<span class="sd">    :param image_std: Standard deviation values for normalization</span>
-<span class="sd">    :type image_std: list</span>
-<span class="sd">    :param do_convert_rgb: Whether to convert image to RGB</span>
-<span class="sd">    :type do_convert_rgb: bool</span>
-
-<span class="sd">    :return: Preprocessed image as numpy array</span>
-<span class="sd">    :rtype: numpy.ndarray</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">do_convert_rgb</span> <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="s1">&#39;RGB&#39;</span><span class="p">:</span>
-        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
-
-    <span class="n">img_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">do_resize</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="n">_DEFAULT</span><span class="p">:</span>
-            <span class="n">size</span> <span class="o">=</span> <span class="n">_DEFAULT_SIZE</span>
-        <span class="k">if</span> <span class="s1">&#39;shortest_edge&#39;</span> <span class="ow">in</span> <span class="n">size</span><span class="p">:</span>
-            <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">img_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
-            <span class="n">shortest_edge</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
-            <span class="n">scale</span> <span class="o">=</span> <span class="n">size</span><span class="p">[</span><span class="s1">&#39;shortest_edge&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">shortest_edge</span>
-            <span class="n">new_h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span>
-            <span class="n">new_w</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="s1">&#39;width&#39;</span> <span class="ow">in</span> <span class="n">size</span> <span class="ow">and</span> <span class="s1">&#39;height&#39;</span> <span class="ow">in</span> <span class="n">size</span><span class="p">:</span>
-            <span class="n">new_h</span><span class="p">,</span> <span class="n">new_w</span> <span class="o">=</span> <span class="n">size</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid resize - </span><span class="si">{</span><span class="n">size</span><span class="si">!r}</span><span class="s1">.&#39;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span>
-        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">img_array</span><span class="p">)</span>
-        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">new_w</span><span class="p">,</span> <span class="n">new_h</span><span class="p">),</span> <span class="n">resample</span><span class="o">=</span><span class="n">resample</span><span class="p">)</span>
-        <span class="n">img_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">do_center_crop</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">crop_size</span> <span class="ow">is</span> <span class="n">_DEFAULT</span><span class="p">:</span>
-            <span class="n">crop_size</span> <span class="o">=</span> <span class="n">_DEFAULT_CROP_SIZE</span>
-        <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">img_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
-        <span class="n">crop_h</span> <span class="o">=</span> <span class="n">crop_size</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span>
-        <span class="n">crop_w</span> <span class="o">=</span> <span class="n">crop_size</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span>
-        <span class="n">start_h</span> <span class="o">=</span> <span class="p">(</span><span class="n">h</span> <span class="o">-</span> <span class="n">crop_h</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
-        <span class="n">start_w</span> <span class="o">=</span> <span class="p">(</span><span class="n">w</span> <span class="o">-</span> <span class="n">crop_w</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
-        <span class="n">img_array</span> <span class="o">=</span> <span class="n">img_array</span><span class="p">[</span><span class="n">start_h</span><span class="p">:</span><span class="n">start_h</span> <span class="o">+</span> <span class="n">crop_h</span><span class="p">,</span> <span class="n">start_w</span><span class="p">:</span><span class="n">start_w</span> <span class="o">+</span> <span class="n">crop_w</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">do_rescale</span><span class="p">:</span>
-        <span class="n">img_array</span> <span class="o">=</span> <span class="n">img_array</span> <span class="o">*</span> <span class="n">rescale_factor</span>
-
-    <span class="n">img_array</span> <span class="o">=</span> <span class="n">img_array</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">do_normalize</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">image_mean</span> <span class="ow">is</span> <span class="n">_DEFAULT</span><span class="p">:</span>
-            <span class="n">image_mean</span> <span class="o">=</span> <span class="n">_DEFAULT_MEAN</span>
-        <span class="k">if</span> <span class="n">image_std</span> <span class="ow">is</span> <span class="n">_DEFAULT</span><span class="p">:</span>
-            <span class="n">image_std</span> <span class="o">=</span> <span class="n">_DEFAULT_STD</span>
-        <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image_mean</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image_std</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">img_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">img_array</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span>
-
-    <span class="k">return</span> <span class="n">img_array</span>
-
 
 <span class="n">_REPO</span> <span class="o">=</span> <span class="s1">&#39;deepghs/dinov2_onnx&#39;</span>
 <span class="n">_DEFAULT_MODEL</span> <span class="o">=</span> <span class="s1">&#39;facebook/dinov2-base&#39;</span>
 
 
 <span class="nd">@ts_lru_cache</span><span class="p">()</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_preprocess_config</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_preprocessor</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get preprocessing configuration for specified DINOv2 model variant.</span>
 
 <span class="sd">    :param model_name: Name of DINOv2 model variant</span>
 <span class="sd">    :type model_name: str</span>
-<span class="sd">    :return: Preprocessing configuration dictionary</span>
-<span class="sd">    :rtype: dict</span>
+<span class="sd">    :return: Preprocessor for dinov2 model</span>
+<span class="sd">    :rtype: PillowCompose</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">hf_hub_download</span><span class="p">(</span>
             <span class="n">repo_id</span><span class="o">=</span><span class="n">_REPO</span><span class="p">,</span>
             <span class="n">repo_type</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">,</span>
-            <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">/preprocess.json&#39;</span>
+            <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">/preprocessor.json&#39;</span>
     <span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">create_pillow_transforms</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="s1">&#39;stages&#39;</span><span class="p">])</span>
 
 
 <span class="nd">@ts_lru_cache</span><span class="p">()</span>
@@ -284,16 +176,11 @@
 <span class="sd">        (768,)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">image</span> <span class="o">=</span> <span class="n">load_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">force_background</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
-    <span class="n">preprocess_config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">_get_preprocess_config</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span>
-    <span class="k">assert</span> <span class="n">preprocess_config</span><span class="p">[</span><span class="s2">&quot;image_processor_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;BitImageProcessor&quot;</span><span class="p">,</span> \
-        <span class="sa">f</span><span class="s1">&#39;Unsupported preprocessor - </span><span class="si">{</span><span class="n">preprocess_config</span><span class="p">[</span><span class="s2">&quot;image_processor_type&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1">&#39;</span>
-    <span class="k">del</span> <span class="n">preprocess_config</span><span class="p">[</span><span class="s2">&quot;image_processor_type&quot;</span><span class="p">]</span>
-
-    <span class="n">data</span> <span class="o">=</span> <span class="n">_dinov2_preprocess_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="o">**</span><span class="n">preprocess_config</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">})</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">preprocessor</span> <span class="o">=</span> <span class="n">_get_preprocessor</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+    <span class="n">input_</span> <span class="o">=</span> <span class="n">preprocessor</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
     <span class="n">last_hidden_state</span><span class="p">,</span> <span class="n">pooler_output</span> <span class="o">=</span> <span class="n">_get_dinov2_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
         <span class="p">[</span><span class="s1">&#39;last_hidden_state&#39;</span><span class="p">,</span> <span class="s1">&#39;pooler_output&#39;</span><span class="p">],</span>
-        <span class="p">{</span><span class="s1">&#39;input&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="o">...</span><span class="p">]},</span>
+        <span class="p">{</span><span class="s1">&#39;input&#39;</span><span class="p">:</span> <span class="n">input_</span><span class="p">},</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">vreplace</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="p">{</span>
