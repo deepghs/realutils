@@ -10,14 +10,14 @@ class Dinov2Benchmark(BaseBenchmark):
         self.model_name = model_name
 
     def load(self):
-        from realutils.metrics.dinov2 import _get_dinov2_model, _get_preprocess_config
+        from realutils.metrics.dinov2 import _get_dinov2_model, _get_preprocessor
         _ = _get_dinov2_model(self.model_name)
-        _ = _get_preprocess_config(self.model_name)
+        _ = _get_preprocessor(self.model_name)
 
     def unload(self):
-        from realutils.metrics.dinov2 import _get_dinov2_model, _get_preprocess_config
+        from realutils.metrics.dinov2 import _get_dinov2_model, _get_preprocessor
         _get_dinov2_model.cache_clear()
-        _get_preprocess_config.cache_clear()
+        _get_preprocessor.cache_clear()
 
     def run(self):
         image_file = random.choice(self.all_images)

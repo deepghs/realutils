@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from realutils.metrics import get_dinov2_embedding
-from realutils.metrics.dinov2 import _get_dinov2_model, _get_preprocess_config
+from realutils.metrics.dinov2 import _get_dinov2_model, _get_preprocessor
 from test.testings import get_testfile
 
 
@@ -14,7 +14,7 @@ def _release_model():
         yield
     finally:
         _get_dinov2_model.cache_clear()
-        _get_preprocess_config.cache_clear()
+        _get_preprocessor.cache_clear()
 
 
 @pytest.mark.unittest
