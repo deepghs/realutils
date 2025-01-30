@@ -9,10 +9,8 @@ Overview:
     All models and preprocessors are hosted on Huggingface
     repository `deepghs/clip_onnx <https://huggingface.co/deepghs/clip_onnx>`_
 
-    .. collapse:: Overview of CLIP (NSFW Warning!!!)
-
-        .. image:: clip_demo.plot.py.svg
-            :align: center
+    .. image:: clip_demo.plot.py.svg
+        :align: center
 
     This is an overall benchmark of all the CLIP models:
 
