@@ -114,20 +114,3 @@ def classify_with_siglip(
         'logits': logits,
         'predictions': predictions,
     })
-
-
-if __name__ == '__main__':
-    print(classify_with_siglip(
-        images=[
-            'test_image.jpg',
-            'test/testfile/idolsankaku/3.jpg',
-        ],
-        texts=[
-            'a photo of a cat',
-            'a photo of 2 cats',
-            'a photo of 2 dogs',
-            # "Hello, this is a test sentence.",
-            'a photo of a woman',
-            'a photo of 2 women',
-        ],
-    ))
