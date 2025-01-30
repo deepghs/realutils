@@ -15,15 +15,15 @@ def _release_model_after_run():
 
 
 @pytest.mark.unittest
-class TestDetectHead:
-    def test_detect_faces_solo(self):
+class TestDetectFace:
+    def test_detect_real_faces_solo(self):
         detection = detect_real_faces(get_testfile('yolo', 'solo.jpg'))
         similarity = detection_similarity(detection, [
             ((168, 79, 245, 199), 'face', 0.7996422052383423),
         ])
         assert similarity >= 0.9
 
-    def test_detect_faces_2girls(self):
+    def test_detect_real_faces_2girls(self):
         detection = detect_real_faces(get_testfile('yolo', '2girls.jpg'))
         similarity = detection_similarity(detection, [
             ((721, 152, 1082, 726), 'face', 0.8811314702033997),
@@ -31,7 +31,7 @@ class TestDetectHead:
         ])
         assert similarity >= 0.9
 
-    def test_detect_faces_3cosplays(self):
+    def test_detect_real_faces_3cosplays(self):
         detection = detect_real_faces(get_testfile('yolo', '3+cosplay.jpg'))
         similarity = detection_similarity(detection, [
             ((351, 228, 410, 302), 'face', 0.8392542600631714),
@@ -40,7 +40,7 @@ class TestDetectHead:
         ])
         assert similarity >= 0.9
 
-    def test_detect_faces_multiple(self):
+    def test_detect_real_faces_multiple(self):
         detection = detect_real_faces(get_testfile('yolo', 'multiple.jpg'))
         similarity = detection_similarity(detection, [
             ((1074, 732, 1258, 987), 'face', 0.8792377710342407),
