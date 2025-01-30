@@ -3,8 +3,21 @@ import re
 import numpy as np
 import pytest
 
-from realutils.metrics.clip import get_clip_image_embedding, get_clip_text_embedding, classify_with_clip
+from realutils.metrics.clip import get_clip_image_embedding, get_clip_text_embedding, classify_with_clip, \
+    _get_logit_scale, _open_text_encoder, _open_text_tokenizer, _open_image_encoder, _open_image_preprocessor
 from test.testings import get_testfile
+
+
+@pytest.fixture(scope='module', autouse=True)
+def _release_model():
+    try:
+        yield
+    finally:
+        _get_logit_scale.cache_clear()
+        _open_image_encoder.cache_clear()
+        _open_image_preprocessor.cache_clear()
+        _open_text_encoder.cache_clear()
+        _open_text_tokenizer.cache_clear()
 
 
 @pytest.mark.unittest
