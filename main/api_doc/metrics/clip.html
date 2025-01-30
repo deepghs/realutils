@@ -75,6 +75,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="dinov2.html">realutils.metrics.dinov2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="siglip.html">realutils.metrics.siglip</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tagging/index.html">realutils.tagging</a></li>
@@ -109,31 +110,51 @@
     
   <section id="module-realutils.metrics.clip">
 <span id="realutils-metrics-clip"></span><h1>realutils.metrics.clip<a class="headerlink" href="#module-realutils.metrics.clip" title="Permalink to this heading"></a></h1>
-<p>CLIP (Contrastive Language-Image Pre-training) model utilities’ module.</p>
+<dl>
+<dt>Overview:</dt><dd><p>CLIP (Contrastive Language-Image Pre-training) model utilities’ module.</p>
 <p>This module provides functions for working with CLIP models, including image and text embedding
 generation and classification. It supports loading ONNX-converted CLIP models from Hugging Face Hub
 and performing inference for both image and text inputs.</p>
 <p>All models and preprocessors are hosted on Huggingface
 repository <a class="reference external" href="https://huggingface.co/deepghs/clip_onnx">deepghs/clip_onnx</a></p>
+<img alt="../../_images/clip_demo.plot.py.svg" class="align-center" src="../../_images/clip_demo.plot.py.svg" /><p>This is an overall benchmark of all the CLIP models:</p>
+<img alt="api_doc/metrics/clip_image_benchmark.plot.py.svg" class="align-center" src="api_doc/metrics/clip_image_benchmark.plot.py.svg" /><img alt="../../_images/clip_text_benchmark.plot.py.svg" class="align-center" src="../../_images/clip_text_benchmark.plot.py.svg" /></dd>
+</dl>
 <section id="get-clip-text-embedding">
 <h2>get_clip_text_embedding<a class="headerlink" href="#get-clip-text-embedding" title="Permalink to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="realutils.metrics.clip.get_clip_text_embedding">
 <span class="sig-prename descclassname"><span class="pre">realutils.metrics.clip.</span></span><span class="sig-name descname"><span class="pre">get_clip_text_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">texts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'openai/clip-vit-base-patch32'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'embeddings'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/realutils/metrics/clip.html#get_clip_text_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#realutils.metrics.clip.get_clip_text_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Generate CLIP embeddings for input texts.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>texts</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Input text or list of texts to encode</p></li>
 <li><p><strong>model_name</strong> (<em>str</em>) – Name of the CLIP model to use</p></li>
-<li><p><strong>fmt</strong> (<em>str</em>) – Output format (‘embeddings’ or ‘encodings’)</p></li>
+<li><p><strong>fmt</strong> – Output format (‘embeddings’ or ‘encodings’)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Text embeddings or encodings based on fmt parameter</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy.ndarray</p>
+<dt class="field-odd">Example<span class="colon">:</span></dt>
+<dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">realutils.metrics.clip</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_clip_text_embedding</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># one text</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">emb</span> <span class="o">=</span> <span class="n">get_clip_text_embedding</span><span class="p">(</span><span class="s1">&#39;a photo of a cat&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">emb</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">emb</span><span class="o">.</span><span class="n">dtype</span>
+<span class="go">((1, 512), dtype(&#39;float32&#39;))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># multiple texts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">emb</span> <span class="o">=</span> <span class="n">get_clip_text_embedding</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="s1">&#39;a photo of a cat&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;a photo of a dog&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;a photo of a human&#39;</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">emb</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">emb</span><span class="o">.</span><span class="n">dtype</span>
+<span class="go">((3, 512), dtype(&#39;float32&#39;))</span>
+</pre></div>
+</div>
 </dd>
 </dl>
 </dd></dl>
@@ -145,19 +166,31 @@ repository <a class="reference external" href="https://huggingface.co/deepghs/cl
 <dt class="sig sig-object py" id="realutils.metrics.clip.get_clip_image_embedding">
 <span class="sig-prename descclassname"><span class="pre">realutils.metrics.clip.</span></span><span class="sig-name descname"><span class="pre">get_clip_image_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BinaryIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BinaryIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BinaryIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'openai/clip-vit-base-patch32'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'embeddings'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/realutils/metrics/clip.html#get_clip_image_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#realutils.metrics.clip.get_clip_image_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Generate CLIP embeddings for input images.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>images</strong> (<em>MultiImagesTyping</em>) – Input images to encode</p></li>
 <li><p><strong>model_name</strong> (<em>str</em>) – Name of the CLIP model to use</p></li>
-<li><p><strong>fmt</strong> (<em>str</em>) – Output format (‘embeddings’ or ‘encodings’)</p></li>
+<li><p><strong>fmt</strong> – Output format (‘embeddings’ or ‘encodings’)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Image embeddings or encodings based on fmt parameter</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy.ndarray</p>
+<dt class="field-odd">Example<span class="colon">:</span></dt>
+<dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">realutils.metrics.clip</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_clip_image_embedding</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># one image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">emb</span> <span class="o">=</span> <span class="n">get_clip_image_embedding</span><span class="p">(</span><span class="s1">&#39;xlip/1.jpg&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">emb</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">emb</span><span class="o">.</span><span class="n">dtype</span>
+<span class="go">((1, 512), dtype(&#39;float32&#39;))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># multiple images</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">emb</span> <span class="o">=</span> <span class="n">get_clip_image_embedding</span><span class="p">([</span><span class="s1">&#39;xlip/1.jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;xlip/2.jpg&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">emb</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">emb</span><span class="o">.</span><span class="n">dtype</span>
+<span class="go">((2, 512), dtype(&#39;float32&#39;))</span>
+</pre></div>
+</div>
 </dd>
 </dl>
 </dd></dl>
@@ -169,20 +202,36 @@ repository <a class="reference external" href="https://huggingface.co/deepghs/cl
 <dt class="sig sig-object py" id="realutils.metrics.clip.classify_with_clip">
 <span class="sig-prename descclassname"><span class="pre">realutils.metrics.clip.</span></span><span class="sig-name descname"><span class="pre">classify_with_clip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BinaryIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BinaryIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BinaryIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'openai/clip-vit-base-patch32'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'predictions'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/realutils/metrics/clip.html#classify_with_clip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#realutils.metrics.clip.classify_with_clip" title="Permalink to this definition"></a></dt>
 <dd><p>Perform classification using CLIP model by comparing image and text embeddings.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>images</strong> (<em>Union</em><em>[</em><em>MultiImagesTyping</em><em>, </em><em>numpy.ndarray</em><em>]</em>) – Input images or pre-computed image embeddings</p></li>
 <li><p><strong>texts</strong> (<em>Union</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>str</em><em>, </em><em>numpy.ndarray</em><em>]</em>) – Input texts or pre-computed text embeddings</p></li>
 <li><p><strong>model_name</strong> (<em>str</em>) – Name of the CLIP model to use</p></li>
-<li><p><strong>fmt</strong> (<em>str</em>) – Output format (‘predictions’, ‘similarities’, or ‘logits’)</p></li>
+<li><p><strong>fmt</strong> – Output format (‘predictions’, ‘similarities’, or ‘logits’)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Classification results based on fmt parameter</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy.ndarray</p>
+<dt class="field-odd">Example<span class="colon">:</span></dt>
+<dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">realutils.metrics.clip</span><span class="w"> </span><span class="kn">import</span> <span class="n">classify_with_clip</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">classify_with_clip</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">images</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="s1">&#39;xlip/1.jpg&#39;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s1">&#39;xlip/2.jpg&#39;</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span>    <span class="n">texts</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="s1">&#39;a photo of a cat&#39;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s1">&#39;a photo of a dog&#39;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s1">&#39;a photo of a human&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">array([[0.98039913, 0.00506729, 0.01453355],</span>
+<span class="go">       [0.05586662, 0.02006196, 0.92407143]], dtype=float32)</span>
+</pre></div>
+</div>
 </dd>
 </dl>
 </dd></dl>
