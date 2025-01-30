@@ -118,7 +118,7 @@
 <p>This function applies a pre-trained YOLO model to detect faces in the given anime image.
 It supports different model levels and versions, allowing users to balance between
 detection speed and accuracy.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> (<em>ImageTyping</em>) – The input image for face detection. Can be various image types supported by ImageTyping.</p></li>
@@ -138,21 +138,26 @@ Detections with IoU above this threshold will be merged. Default is 0.7.</p></li
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>List[Tuple[Tuple[int, int, int, int], str, float]]</p>
 </dd>
-</dl>
-<dl>
-<dt>Examples::</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.detect</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_faces</span><span class="p">,</span> <span class="n">detection_visualize</span>
+<dt class="field-even">Example<span class="colon">:</span></dt>
+<dd class="field-even"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">realutils.detect</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_real_faces</span>
 <span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">image</span> <span class="o">=</span> <span class="s1">&#39;mostima_post.jpg&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">detect_faces</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>  <span class="c1"># detect it</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span>
-<span class="go">[</span>
-<span class="go">    ((29, 441, 204, 584), &#39;face&#39;, 0.7874319553375244),</span>
-<span class="go">    ((346, 59, 529, 275), &#39;face&#39;, 0.7510495185852051),</span>
-<span class="go">    ((606, 51, 895, 336), &#39;face&#39;, 0.6986488103866577)</span>
-<span class="go">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detect_real_faces</span><span class="p">(</span><span class="s1">&#39;yolo/solo.jpg&#39;</span><span class="p">)</span>
+<span class="go">[((168, 79, 245, 199), &#39;face&#39;, 0.7996422052383423)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detect_real_faces</span><span class="p">(</span><span class="s1">&#39;yolo/2girls.jpg&#39;</span><span class="p">)</span>
+<span class="go">[((721, 152, 1082, 726), &#39;face&#39;, 0.8811314702033997), ((158, 263, 509, 714), &#39;face&#39;, 0.8745490908622742)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detect_real_faces</span><span class="p">(</span><span class="s1">&#39;yolo/3+cosplay.jpg&#39;</span><span class="p">)</span>
+<span class="go">[((351, 228, 410, 302), &#39;face&#39;, 0.8392542600631714), ((384, 63, 427, 116), &#39;face&#39;, 0.8173024654388428), ((195, 109, 246, 161), &#39;face&#39;, 0.8126493692398071)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detect_real_faces</span><span class="p">(</span><span class="s1">&#39;yolo/multiple.jpg&#39;</span><span class="p">)</span>
+<span class="go">[((1074, 732, 1258, 987), &#39;face&#39;, 0.8792377710342407), ((1378, 536, 1541, 716), &#39;face&#39;, 0.8607611656188965), ((554, 295, 759, 557), &#39;face&#39;, 0.8541485071182251), ((897, 315, 1068, 520), &#39;face&#39;, 0.8539882898330688), ((1194, 230, 1329, 403), &#39;face&#39;, 0.8324605226516724)]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.detect</span><span class="w"> </span><span class="kn">import</span> <span class="n">detection_visualize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image</span> <span class="o">=</span> <span class="s1">&#39;yolo/solo.jpg&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">detect_real_faces</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># visualize it</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">detection_visualize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">result</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>

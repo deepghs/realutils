@@ -142,20 +142,25 @@
 <span class="sd">             - The confidence score of the detection</span>
 <span class="sd">    :rtype: List[Tuple[Tuple[int, int, int, int], str, float]]</span>
 
-<span class="sd">    Examples::</span>
-<span class="sd">        &gt;&gt;&gt; from imgutils.detect import detect_faces, detection_visualize</span>
+<span class="sd">    :example:</span>
+<span class="sd">        &gt;&gt;&gt; from realutils.detect import detect_real_faces</span>
 <span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; image = &#39;mostima_post.jpg&#39;</span>
-<span class="sd">        &gt;&gt;&gt; result = detect_faces(image)  # detect it</span>
-<span class="sd">        &gt;&gt;&gt; result</span>
-<span class="sd">        [</span>
-<span class="sd">            ((29, 441, 204, 584), &#39;face&#39;, 0.7874319553375244),</span>
-<span class="sd">            ((346, 59, 529, 275), &#39;face&#39;, 0.7510495185852051),</span>
-<span class="sd">            ((606, 51, 895, 336), &#39;face&#39;, 0.6986488103866577)</span>
-<span class="sd">        ]</span>
+<span class="sd">        &gt;&gt;&gt; detect_real_faces(&#39;yolo/solo.jpg&#39;)</span>
+<span class="sd">        [((168, 79, 245, 199), &#39;face&#39;, 0.7996422052383423)]</span>
+<span class="sd">        &gt;&gt;&gt; detect_real_faces(&#39;yolo/2girls.jpg&#39;)</span>
+<span class="sd">        [((721, 152, 1082, 726), &#39;face&#39;, 0.8811314702033997), ((158, 263, 509, 714), &#39;face&#39;, 0.8745490908622742)]</span>
+<span class="sd">        &gt;&gt;&gt; detect_real_faces(&#39;yolo/3+cosplay.jpg&#39;)</span>
+<span class="sd">        [((351, 228, 410, 302), &#39;face&#39;, 0.8392542600631714), ((384, 63, 427, 116), &#39;face&#39;, 0.8173024654388428), ((195, 109, 246, 161), &#39;face&#39;, 0.8126493692398071)]</span>
+<span class="sd">        &gt;&gt;&gt; detect_real_faces(&#39;yolo/multiple.jpg&#39;)</span>
+<span class="sd">        [((1074, 732, 1258, 987), &#39;face&#39;, 0.8792377710342407), ((1378, 536, 1541, 716), &#39;face&#39;, 0.8607611656188965), ((554, 295, 759, 557), &#39;face&#39;, 0.8541485071182251), ((897, 315, 1068, 520), &#39;face&#39;, 0.8539882898330688), ((1194, 230, 1329, 403), &#39;face&#39;, 0.8324605226516724)]</span>
+
+<span class="sd">        &gt;&gt;&gt; from imgutils.detect import detection_visualize</span>
+<span class="sd">        &gt;&gt;&gt; from matplotlib import pyplot as plt</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; image = &#39;yolo/solo.jpg&#39;</span>
+<span class="sd">        &gt;&gt;&gt; result = detect_real_faces(image)</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # visualize it</span>
-<span class="sd">        &gt;&gt;&gt; from matplotlib import pyplot as plt</span>
 <span class="sd">        &gt;&gt;&gt; plt.imshow(detection_visualize(image, result))</span>
 <span class="sd">        &gt;&gt;&gt; plt.show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
