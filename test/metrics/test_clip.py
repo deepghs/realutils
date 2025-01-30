@@ -62,7 +62,7 @@ class TestMetricsCLIP:
     def test_classify_with_clip(self):
         result = classify_with_clip(
             images=[
-                'test_image.jpg',
+                get_testfile('clip_cats.jpg'),
                 get_testfile('idolsankaku', '3.jpg'),
             ],
             texts=[
