@@ -137,10 +137,8 @@ def get_clip_image_embedding(images: MultiImagesTyping, model_name: str = _DEFAU
     :param model_name: Name of the CLIP model to use
     :type model_name: str
     :param fmt: Output format ('embeddings' or 'encodings')
-    :type fmt: str
 
     :return: Image embeddings or encodings based on fmt parameter
-    :rtype: numpy.ndarray
 
     :example:
         >>> from realutils.metrics.clip import get_clip_image_embedding
@@ -176,10 +174,8 @@ def get_clip_text_embedding(texts: Union[str, List[str]], model_name: str = _DEF
     :param model_name: Name of the CLIP model to use
     :type model_name: str
     :param fmt: Output format ('embeddings' or 'encodings')
-    :type fmt: str
 
     :return: Text embeddings or encodings based on fmt parameter
-    :rtype: numpy.ndarray
 
     :example:
         >>> from realutils.metrics.clip import get_clip_text_embedding
@@ -232,10 +228,8 @@ def classify_with_clip(
     :param model_name: Name of the CLIP model to use
     :type model_name: str
     :param fmt: Output format ('predictions', 'similarities', or 'logits')
-    :type fmt: str
 
     :return: Classification results based on fmt parameter
-    :rtype: numpy.ndarray
 
     :example:
         >>> from realutils.metrics.clip import classify_with_clip

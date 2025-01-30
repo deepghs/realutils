@@ -11,3 +11,4 @@ realutils.metrics
 
     clip
     dinov2
+    siglip
