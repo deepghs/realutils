@@ -84,4 +84,22 @@ def export(model_name: str, repository: str = 'deepghs/yolo-face', opset_version
 
 if __name__ == '__main__':
     logging.try_init_root(level=logging.INFO)
-    export('yolov11n-face')
+    for mn in [
+        "yolov6m-face",
+        "yolov6n-face",
+        "yolov8l-face",
+        "yolov8m-face",
+        "yolov8n-face",
+        "yolov9-c-face",
+
+        "yolov10l-face",
+        "yolov10m-face",
+        "yolov10n-face",
+        "yolov10s-face",
+
+        "yolov11l-face",
+        "yolov11m-face",
+        "yolov11n-face",
+        "yolov11s-face",
+    ]:
+        export(mn)
