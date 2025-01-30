@@ -9,4 +9,5 @@ realutils.metrics
 .. toctree::
     :maxdepth: 3
 
+    clip
     dinov2
