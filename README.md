@@ -79,6 +79,28 @@ see: [documentation of get_idolsankaku_tags](https://dghs-realutils.deepghs.org/
 
 ### Generic Object Detection
 
+We use official YOLO models the generic purpose of object detections.
+
+![object_detection](https://github.com/deepghs/realutils/blob/gh-pages/main/_images/yolo_demo.plot.py.svg)
+
+We can use `detect_by_yolo` for generic object detection
+
+```python
+from realutils.detect import detect_by_yolo
+
+print(detect_by_yolo('yolo/unsplash_aJafJ0sLo6o.jpg'))
+# [((450, 317, 567, 599), 'person', 0.9004617929458618)]
+print(detect_by_yolo('yolo/unsplash_n4qQGOBgI7U.jpg'))
+# [((73, 101, 365, 409), 'vase', 0.9098997116088867), ((441, 215, 659, 428), 'vase', 0.622944176197052), ((5, 1, 428, 377), 'potted plant', 0.5178268551826477)]
+print(detect_by_yolo('yolo/unsplash_vUNQaTtZeOo.jpg'))
+# [((381, 103, 676, 448), 'bird', 0.9061452150344849)]
+print(detect_by_yolo('yolo/unsplash_YZOqXWF_9pk.jpg'))
+# [((315, 100, 690, 532), 'horse', 0.9453459978103638), ((198, 181, 291, 256), 'horse', 0.917123556137085), ((145, 173, 180, 249), 'horse', 0.7972317337989807), ((660, 138, 701, 170), 'horse', 0.4843617379665375)]
+```
+
+More models are hosted on [huggingface repository](https://huggingface.co/deepghs/yolos).
+An online demo are provided as well, you can try [it](https://huggingface.co/spaces/deepghs/yolos) out.
+
 ### Face Detection
 
 We use YOLO models from [akanametov/yolo-face](https://github.com/akanametov/yolo-face) for face detection.
@@ -103,4 +125,70 @@ print(detect_real_faces('yolo/multiple.jpg'))
 More models are hosted on [huggingface repository](https://huggingface.co/deepghs/yolo-face).
 An online demo are provided as well, you can try [it](https://huggingface.co/spaces/deepghs/yolo-face) out.
 
+### Feature Extractor
+
+We support DINOv2-based image feature extractor, like this
+
+```python
+from realutils.metrics import get_dinov2_embedding
+
+embedding = get_dinov2_embedding('unsplash_0aLd44ICcpg.jpg')
+print(embedding.shape)
+# (768,)
+```
+
+You can use this embedding, calculating their cosine similarities to measure their visual similarities.
+
+### Image-Text Models
+
+We support both CLIP and SigLIP for multimodal alignment operations, like this
+
+* CLIP
+
+```python
+from realutils.metrics.clip import classify_with_clip
+
+print(classify_with_clip(
+    images=[
+        'xlip/1.jpg',
+        'xlip/2.jpg'
+    ],
+    texts=[
+        'a photo of a cat',
+        'a photo of a dog',
+        'a photo of a human',
+    ],
+))
+# array([[0.98039913, 0.00506729, 0.01453355],
+#       [0.05586662, 0.02006196, 0.92407143]], dtype=float32)
+```
+
+* SigLIP
+
+```python
+from realutils.metrics.siglip import classify_with_siglip
+
+print(classify_with_siglip(
+    images=[
+        'xlip/1.jpg',
+        'xlip/2.jpg',
+    ],
+    texts=[
+        'a photo of a cat',
+        'a photo of 2 cats',
+        'a photo of 2 dogs',
+        'a photo of a woman',
+    ],
+))
+# array([[1.3782851e-03, 2.7010253e-01, 9.7517688e-05, 3.6702781e-09],
+#        [3.3248414e-06, 2.2294161e-07, 1.9753381e-09, 2.2561464e-06]],
+#       dtype=float32)
+```
+
+For more details, you can take a look at:
+
+* [Documentation of realutils.metrics.clip](https://dghs-realutils.deepghs.org/main/api_doc/metrics/clip.html)
+* [Models of CLIP](https://huggingface.co/deepghs/clip_onnx)
+* [Documentation of realutils.metrics.siglip](https://dghs-realutils.deepghs.org/main/api_doc/metrics/siglip.html)
+* [Models of SigLIP](https://huggingface.co/deepghs/siglip_onnx)
 
