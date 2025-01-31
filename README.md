@@ -83,7 +83,7 @@ see: [documentation of get_idolsankaku_tags](https://dghs-realutils.deepghs.org/
 
 We use YOLO models from [akanametov/yolo-face](https://github.com/akanametov/yolo-face) for face detection.
 
-![face_detection](https://dghs-realutils.deepghs.org/main/_images/face_detect_demo.plot.py.svg)
+![face_detection](https://github.com/deepghs/realutils/blob/gh-pages/main/_images/face_detect_demo.plot.py.svg)
 
 We can use `detect_real_faces` for face detection
 
