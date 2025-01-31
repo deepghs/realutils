@@ -12,7 +12,6 @@ configuration file's structure and their versions.
     :caption: Tutorials
 
     tutorials/installation/index
-    tutorials/quick_start/index
 
 .. toctree::
     :maxdepth: 2
