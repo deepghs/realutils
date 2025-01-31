@@ -46,6 +46,7 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install -r requirements-doc.txt
       - name: Download Dataset
+        if: ${{ github.event_name == 'push' }}
         shell: bash
         run: |
           make dataset
