@@ -16,3 +16,4 @@ filelock
 dghs-imgutils>=0.9.3
 tokenizers>=0.20.0; python_version >= '3.9'
 tokenizers>=0.20.0,<0.21; python_version < '3.9'
+shapely!=2.0.7
