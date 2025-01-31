@@ -50,7 +50,7 @@ Here, we won't go into each of them individually.
 
 We have tagger for real human photos, like this
 
-![idolsankaku_tagger]()
+![idolsankaku_tagger](https://github.com/deepghs/realutils/blob/main/docs/source/api_doc/tagging/idolsankaku_demo_readme.plot.py.svg)
 
 We can use `get_idolsankaku_tags` to tag them
 
@@ -79,8 +79,28 @@ see: [documentation of get_idolsankaku_tags](https://dghs-realutils.deepghs.org/
 
 ### Generic Object Detection
 
-
-
 ### Face Detection
 
-We use YOLO models from []()
+We use YOLO models from [akanametov/yolo-face](https://github.com/akanametov/yolo-face) for face detection.
+
+![face_detection](https://dghs-realutils.deepghs.org/main/_images/face_detect_demo.plot.py.svg)
+
+We can use `detect_real_faces` for face detection
+
+```python
+from realutils.detect import detect_real_faces
+
+print(detect_real_faces('yolo/solo.jpg'))
+# [((168, 79, 245, 199), 'face', 0.7996422052383423)]
+print(detect_real_faces('yolo/2girls.jpg'))
+# [((721, 152, 1082, 726), 'face', 0.8811314702033997), ((158, 263, 509, 714), 'face', 0.8745490908622742)]
+print(detect_real_faces('yolo/3+cosplay.jpg'))
+# [((351, 228, 410, 302), 'face', 0.8392542600631714), ((384, 63, 427, 116), 'face', 0.8173024654388428), ((195, 109, 246, 161), 'face', 0.8126493692398071)]
+print(detect_real_faces('yolo/multiple.jpg'))
+# [((1074, 732, 1258, 987), 'face', 0.8792377710342407), ((1378, 536, 1541, 716), 'face', 0.8607611656188965), ((554, 295, 759, 557), 'face', 0.8541485071182251), ((897, 315, 1068, 520), 'face', 0.8539882898330688), ((1194, 230, 1329, 403), 'face', 0.8324605226516724)]
+```
+
+More models are hosted on [huggingface repository](https://huggingface.co/deepghs/yolo-face).
+An online demo are provided as well, you can try [it](https://huggingface.co/spaces/deepghs/yolo-face) out.
+
+
