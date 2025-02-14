@@ -123,8 +123,8 @@ print(detect_faces('yolo/multiple.jpg'))
 # [((1074, 732, 1258, 987), 'face', 0.8792377710342407), ((1378, 536, 1541, 716), 'face', 0.8607611656188965), ((554, 295, 759, 557), 'face', 0.8541485071182251), ((897, 315, 1068, 520), 'face', 0.8539882898330688), ((1194, 230, 1329, 403), 'face', 0.8324605226516724)]
 ```
 
-More models are hosted on [huggingface repository](https://huggingface.co/deepghs/yolo-face).
-An online demo are provided as well, you can try [it](https://huggingface.co/spaces/deepghs/yolo-face) out.
+More models are hosted on [huggingface repository](https://huggingface.co/deepghs/real_face_detection).
+An online demo are provided as well, you can try [it](https://huggingface.co/spaces/deepghs/real_object_detection) out.
 
 ### Feature Extractor
 
