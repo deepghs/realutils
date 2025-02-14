@@ -9,5 +9,6 @@ realutils.detect
 .. toctree::
     :maxdepth: 3
 
+    face
     real_face
     yolo

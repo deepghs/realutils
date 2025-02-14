@@ -23,7 +23,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="realutils.detect.yolo" href="yolo.html" />
-    <link rel="prev" title="realutils.detect" href="index.html" /> 
+    <link rel="prev" title="realutils.detect.face" href="face.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -57,6 +57,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../config/index.html">realutils.config</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">realutils.detect</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="face.html">realutils.detect.face</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">realutils.detect.real_face</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#detect-real-faces">detect_real_faces</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#realutils.detect.real_face.detect_real_faces"><code class="docutils literal notranslate"><span class="pre">detect_real_faces()</span></code></a></li>
@@ -107,6 +108,12 @@
 <img alt="../../_images/real_face_detect_benchmark.plot.py.svg" class="align-center" src="../../_images/real_face_detect_benchmark.plot.py.svg" /><p>The models are hosted on
 <a class="reference external" href="https://huggingface.co/deepghs/yolo-face">huggingface - deepghs/yolo-face</a>
 trained by <a class="reference external" href="https://github.com/akanametov">&#64;akanametov</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only real photos are supported by this models.
+If you are looking for models to detect faces from both real photos and anime images,
+consider using function <a class="reference internal" href="face.html#realutils.detect.face.detect_faces" title="realutils.detect.face.detect_faces"><code class="xref py py-func docutils literal notranslate"><span class="pre">realutils.detect.face.detect_faces()</span></code></a>.</p>
+</div>
 </dd>
 </dl>
 <section id="detect-real-faces">
@@ -174,7 +181,7 @@ Detections with IoU above this threshold will be merged. Default is 0.7.</p></li
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="realutils.detect" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="face.html" class="btn btn-neutral float-left" title="realutils.detect.face" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="yolo.html" class="btn btn-neutral float-right" title="realutils.detect.yolo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
