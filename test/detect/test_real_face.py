@@ -2,7 +2,7 @@ import pytest
 from imgutils.detect import detection_similarity
 from imgutils.generic.yolo import _open_models_for_repo_id
 
-from realutils.detect.face import detect_real_faces
+from realutils.detect.real_face import detect_real_faces
 from test.testings import get_testfile
 
 

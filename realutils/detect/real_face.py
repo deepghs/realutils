@@ -4,16 +4,17 @@ Overview:
 
     Inspired by project `akanametov/yolo-face <https://github.com/akanametov/yolo-face>`_.
 
-    .. image:: face_detect_demo.plot.py.svg
+    .. image:: real_face_detect_demo.plot.py.svg
         :align: center
 
     This is an overall benchmark of all the face detect models:
 
-    .. image:: face_detect_benchmark.plot.py.svg
+    .. image:: real_face_detect_benchmark.plot.py.svg
         :align: center
 
     The models are hosted on
-    `huggingface - deepghs/yolo-face <https://huggingface.co/deepghs/yolo-face>`_.
+    `huggingface - deepghs/yolo-face <https://huggingface.co/deepghs/yolo-face>`_
+    trained by `@akanametov <https://github.com/akanametov>`_.
 
 """
 from typing import List, Tuple

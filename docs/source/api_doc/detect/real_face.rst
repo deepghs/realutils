@@ -1,9 +1,9 @@
-realutils.detect.face
+realutils.detect.real_face
 ==================================
 
-.. currentmodule:: realutils.detect.face
+.. currentmodule:: realutils.detect.real_face
 
-.. automodule:: realutils.detect.face
+.. automodule:: realutils.detect.real_face
 
 
 
