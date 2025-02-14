@@ -54,6 +54,28 @@ def detect_heads(image: ImageTyping, model_name: str = 'head_detect_v0_s_yv11',
              - The string 'head' (as this function only detects heads)
              - The confidence score of the detection
     :rtype: List[Tuple[Tuple[int, int, int, int], str, float]]
+
+    :example:
+        >>> from realutils.detect import detect_heads
+        >>>
+        >>> detect_heads('yolo/solo.jpg')
+        [((162, 47, 305, 210), 'head', 0.7701659202575684)]
+        >>> detect_heads('yolo/2girls.jpg')
+        [((683, 48, 1199, 754), 'head', 0.8410779237747192), ((105, 91, 570, 734), 'head', 0.8339194059371948)]
+        >>> detect_heads('yolo/3+cosplay.jpg')
+        [((329, 194, 426, 309), 'head', 0.8123012781143188), ((359, 20, 448, 122), 'head', 0.8047150373458862), ((185, 81, 265, 166), 'head', 0.7797152996063232)]
+        >>> detect_heads('yolo/multiple.jpg')
+        [((867, 259, 1084, 527), 'head', 0.8264595866203308), ((1364, 448, 1583, 724), 'head', 0.8254891633987427), ((480, 201, 781, 565), 'head', 0.8191508054733276), ((1189, 175, 1398, 412), 'head', 0.8097156286239624), ((1028, 671, 1277, 992), 'head', 0.8084591627120972)]
+
+        >>> from imgutils.detect import detection_visualize
+        >>> from matplotlib import pyplot as plt
+        >>>
+        >>> image = 'yolo/solo.jpg'
+        >>> result = detect_heads(image)
+        >>>
+        >>> # visualize it
+        >>> plt.imshow(detection_visualize(image, result))
+        >>> plt.show()
     """
     return yolo_predict(
         image=image,
