@@ -3,7 +3,7 @@ import random
 from imgutils.generic.yolo import _open_models_for_repo_id
 
 from benchmark import BaseBenchmark, create_plot_cli
-from realutils.detect.face import detect_real_faces, _REPO_ID
+from realutils.detect.face import detect_faces, _REPO_ID
 
 _MODELS = _open_models_for_repo_id(_REPO_ID).model_names
 
@@ -23,7 +23,7 @@ class FaceDetectBenchmark(BaseBenchmark):
 
     def run(self):
         image_file = random.choice(self.all_images)
-        _ = detect_real_faces(image_file, model_name=self.model_name)
+        _ = detect_faces(image_file, model_name=self.model_name)
 
 
 if __name__ == '__main__':
@@ -32,7 +32,7 @@ if __name__ == '__main__':
             (model_name, FaceDetectBenchmark(model_name))
             for model_name in _MODELS
         ],
-        title='Benchmark for Real Face Detections',
+        title='Benchmark for Face Detections',
         run_times=10,
         try_times=20,
     )()

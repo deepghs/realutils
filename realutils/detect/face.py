@@ -1,8 +1,9 @@
 """
 Overview:
-    Detect human faces in real images.
+    Detect human faces in both real photo and anime images.
 
-    Inspired by project `akanametov/yolo-face <https://github.com/akanametov/yolo-face>`_.
+    Trained with `deepghs/anime_face_detection <https://huggingface.co/datasets/deepghs/anime_face_detection>`_ \
+    and open-sourced real photos datasets.
 
     .. image:: face_detect_demo.plot.py.svg
         :align: center
@@ -13,7 +14,7 @@ Overview:
         :align: center
 
     The models are hosted on
-    `huggingface - deepghs/yolo-face <https://huggingface.co/deepghs/yolo-face>`_.
+    `huggingface - deepghs/real_face_detection <https://huggingface.co/deepghs/real_face_detection>`_.
 
 """
 from typing import List, Tuple
@@ -21,14 +22,14 @@ from typing import List, Tuple
 from imgutils.data import ImageTyping
 from imgutils.generic import yolo_predict
 
-_REPO_ID = 'deepghs/yolo-face'
+_REPO_ID = 'deepghs/real_face_detection'
 
 
-def detect_real_faces(image: ImageTyping, model_name: str = 'yolov11s-face',
-                      conf_threshold: float = 0.25, iou_threshold: float = 0.7, **kwargs) \
+def detect_faces(image: ImageTyping, model_name: str = 'face_detect_v0_s_yv11',
+                 conf_threshold: float = 0.25, iou_threshold: float = 0.7, **kwargs) \
         -> List[Tuple[Tuple[int, int, int, int], str, float]]:
     """
-    Detect human faces in real images using YOLO models.
+    Detect human faces in both real photo and anime images using YOLO models.
 
     This function applies a pre-trained YOLO model to detect faces in the given anime image.
     It supports different model levels and versions, allowing users to balance between
@@ -55,22 +56,22 @@ def detect_real_faces(image: ImageTyping, model_name: str = 'yolov11s-face',
     :rtype: List[Tuple[Tuple[int, int, int, int], str, float]]
 
     :example:
-        >>> from realutils.detect import detect_real_faces
+        >>> from realutils.detect import detect_faces
         >>>
-        >>> detect_real_faces('yolo/solo.jpg')
-        [((168, 79, 245, 199), 'face', 0.7996422052383423)]
-        >>> detect_real_faces('yolo/2girls.jpg')
-        [((721, 152, 1082, 726), 'face', 0.8811314702033997), ((158, 263, 509, 714), 'face', 0.8745490908622742)]
-        >>> detect_real_faces('yolo/3+cosplay.jpg')
-        [((351, 228, 410, 302), 'face', 0.8392542600631714), ((384, 63, 427, 116), 'face', 0.8173024654388428), ((195, 109, 246, 161), 'face', 0.8126493692398071)]
-        >>> detect_real_faces('yolo/multiple.jpg')
-        [((1074, 732, 1258, 987), 'face', 0.8792377710342407), ((1378, 536, 1541, 716), 'face', 0.8607611656188965), ((554, 295, 759, 557), 'face', 0.8541485071182251), ((897, 315, 1068, 520), 'face', 0.8539882898330688), ((1194, 230, 1329, 403), 'face', 0.8324605226516724)]
+        >>> detect_faces('yolo/solo.jpg')
+        [((157, 94, 252, 208), 'face', 0.8836570382118225)]
+        >>> detect_faces('yolo/2girls.jpg')
+        [((718, 154, 1110, 728), 'face', 0.8841166496276855), ((157, 275, 519, 715), 'face', 0.8668240904808044)]
+        >>> detect_faces('yolo/3+cosplay.jpg')
+        [((349, 227, 413, 305), 'face', 0.8543888330459595), ((383, 61, 432, 117), 'face', 0.8080574870109558), ((194, 107, 245, 162), 'face', 0.8035706877708435)]
+        >>> detect_faces('yolo/multiple.jpg')
+        [((1070, 728, 1259, 985), 'face', 0.8765808939933777), ((548, 286, 760, 558), 'face', 0.8693087697029114), ((896, 315, 1067, 520), 'face', 0.8671919107437134), ((1198, 220, 1342, 406), 'face', 0.8485829830169678), ((1376, 526, 1546, 719), 'face', 0.8469308018684387)]
 
         >>> from imgutils.detect import detection_visualize
         >>> from matplotlib import pyplot as plt
         >>>
         >>> image = 'yolo/solo.jpg'
-        >>> result = detect_real_faces(image)
+        >>> result = detect_faces(image)
         >>>
         >>> # visualize it
         >>> plt.imshow(detection_visualize(image, result))

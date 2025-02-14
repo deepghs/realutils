@@ -7,10 +7,10 @@ realutils.detect.face
 
 
 
-detect_real_faces
+detect_faces
 -------------------------------------------
 
-.. autofunction:: detect_real_faces
+.. autofunction:: detect_faces
 
 
 

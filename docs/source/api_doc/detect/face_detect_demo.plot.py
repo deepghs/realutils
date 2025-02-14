@@ -2,7 +2,7 @@ from imgutils.data import load_image
 from imgutils.detect.visual import detection_visualize
 
 from plot import image_plot
-from realutils.detect import detect_real_faces
+from realutils.detect import detect_faces
 
 
 def _detect(img, **kwargs):
@@ -12,7 +12,7 @@ def _detect(img, **kwargs):
         new_width = int(round(img.width / r))
         new_height = int(round(img.height / r))
         img = img.resize((new_width, new_height))
-    return detection_visualize(img, detect_real_faces(img, **kwargs))
+    return detection_visualize(img, detect_faces(img, **kwargs))
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@ import pytest
 from imgutils.detect import detection_similarity
 from imgutils.generic.yolo import _open_models_for_repo_id
 
-from realutils.detect.face import detect_real_faces
+from realutils.detect.face import detect_faces
 from test.testings import get_testfile
 
 
@@ -16,37 +16,37 @@ def _release_model_after_run():
 
 @pytest.mark.unittest
 class TestDetectFace:
-    def test_detect_real_faces_solo(self):
-        detection = detect_real_faces(get_testfile('yolo', 'solo.jpg'))
+    def test_detect_faces_solo(self):
+        detection = detect_faces(get_testfile('yolo', 'solo.jpg'))
         similarity = detection_similarity(detection, [
-            ((168, 79, 245, 199), 'face', 0.7996422052383423),
+            ((157, 94, 252, 208), 'face', 0.8836570382118225)
         ])
         assert similarity >= 0.9
 
-    def test_detect_real_faces_2girls(self):
-        detection = detect_real_faces(get_testfile('yolo', '2girls.jpg'))
+    def test_detect_faces_2girls(self):
+        detection = detect_faces(get_testfile('yolo', '2girls.jpg'))
         similarity = detection_similarity(detection, [
-            ((721, 152, 1082, 726), 'face', 0.8811314702033997),
-            ((158, 263, 509, 714), 'face', 0.8745490908622742),
+            ((718, 154, 1110, 728), 'face', 0.8841166496276855),
+            ((157, 275, 519, 715), 'face', 0.8668240904808044)
         ])
         assert similarity >= 0.9
 
-    def test_detect_real_faces_3cosplays(self):
-        detection = detect_real_faces(get_testfile('yolo', '3+cosplay.jpg'))
+    def test_detect_faces_3cosplays(self):
+        detection = detect_faces(get_testfile('yolo', '3+cosplay.jpg'))
         similarity = detection_similarity(detection, [
-            ((351, 228, 410, 302), 'face', 0.8392542600631714),
-            ((384, 63, 427, 116), 'face', 0.8173024654388428),
-            ((195, 109, 246, 161), 'face', 0.8126493692398071)
+            ((349, 227, 413, 305), 'face', 0.8543888330459595),
+            ((383, 61, 432, 117), 'face', 0.8080574870109558),
+            ((194, 107, 245, 162), 'face', 0.8035706877708435)
         ])
         assert similarity >= 0.9
 
-    def test_detect_real_faces_multiple(self):
-        detection = detect_real_faces(get_testfile('yolo', 'multiple.jpg'))
+    def test_detect_faces_multiple(self):
+        detection = detect_faces(get_testfile('yolo', 'multiple.jpg'))
         similarity = detection_similarity(detection, [
-            ((1074, 732, 1258, 987), 'face', 0.8792377710342407),
-            ((1378, 536, 1541, 716), 'face', 0.8607611656188965),
-            ((554, 295, 759, 557), 'face', 0.8541485071182251),
-            ((897, 315, 1068, 520), 'face', 0.8539882898330688),
-            ((1194, 230, 1329, 403), 'face', 0.8324605226516724)
+            ((1070, 728, 1259, 985), 'face', 0.8765808939933777),
+            ((548, 286, 760, 558), 'face', 0.8693087697029114),
+            ((896, 315, 1067, 520), 'face', 0.8671919107437134),
+            ((1198, 220, 1342, 406), 'face', 0.8485829830169678),
+            ((1376, 526, 1546, 719), 'face', 0.8469308018684387)
         ])
         assert similarity >= 0.9
