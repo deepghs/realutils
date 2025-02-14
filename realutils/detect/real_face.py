@@ -16,6 +16,11 @@ Overview:
     `huggingface - deepghs/yolo-face <https://huggingface.co/deepghs/yolo-face>`_
     trained by `@akanametov <https://github.com/akanametov>`_.
 
+    .. note::
+        Only real photos are supported by this models.
+        If you are looking for models to detect faces from both real photos and anime images,
+        consider using function :func:`realutils.detect.face.detect_faces`.
+
 """
 from typing import List, Tuple
 
