@@ -15,7 +15,7 @@ def _release_model_after_run():
 
 
 @pytest.mark.unittest
-class TestDetectFace:
+class TestDetectRealFace:
     def test_detect_real_faces_solo(self):
         detection = detect_real_faces(get_testfile('yolo', 'solo.jpg'))
         similarity = detection_similarity(detection, [
