@@ -21,6 +21,8 @@ if __name__ == '__main__':
         (_detect('face/2girls.jpg'), '2girls'),
         (_detect('face/3+cosplay.jpg'), '3girls cosplay'),
         (_detect('face/multiple.jpg'), 'multiple'),
-        columns=2,
-        figsize=(12, 9),
+        (_detect('face/anime_face/nian.png'), 'anime - solo'),
+        (_detect('face/anime_face/mostima_post.jpg'), 'anime - multiple'),
+        columns=3,
+        figsize=(16, 9),
     )
