@@ -87,9 +87,10 @@
   <h1>Source code for realutils.detect.face</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Overview:</span>
-<span class="sd">    Detect human faces in real images.</span>
+<span class="sd">    Detect human faces in both real photo and anime images.</span>
 
-<span class="sd">    Inspired by project `akanametov/yolo-face &lt;https://github.com/akanametov/yolo-face&gt;`_.</span>
+<span class="sd">    Trained with `deepghs/anime_face_detection &lt;https://huggingface.co/datasets/deepghs/anime_face_detection&gt;`_ \</span>
+<span class="sd">    and open-sourced real photos datasets.</span>
 
 <span class="sd">    .. image:: face_detect_demo.plot.py.svg</span>
 <span class="sd">        :align: center</span>
@@ -100,7 +101,7 @@
 <span class="sd">        :align: center</span>
 
 <span class="sd">    The models are hosted on</span>
-<span class="sd">    `huggingface - deepghs/yolo-face &lt;https://huggingface.co/deepghs/yolo-face&gt;`_.</span>
+<span class="sd">    `huggingface - deepghs/real_face_detection &lt;https://huggingface.co/deepghs/real_face_detection&gt;`_.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
@@ -108,14 +109,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageTyping</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.generic</span><span class="w"> </span><span class="kn">import</span> <span class="n">yolo_predict</span>
 
-<span class="n">_REPO_ID</span> <span class="o">=</span> <span class="s1">&#39;deepghs/yolo-face&#39;</span>
+<span class="n">_REPO_ID</span> <span class="o">=</span> <span class="s1">&#39;deepghs/real_face_detection&#39;</span>
 
 
-<div class="viewcode-block" id="detect_real_faces"><a class="viewcode-back" href="../../../api_doc/detect/face.html#realutils.detect.face.detect_real_faces">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">detect_real_faces</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">ImageTyping</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;yolov11s-face&#39;</span><span class="p">,</span>
-                      <span class="n">conf_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> \
+<div class="viewcode-block" id="detect_faces"><a class="viewcode-back" href="../../../api_doc/detect/face.html#realutils.detect.face.detect_faces">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">detect_faces</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">ImageTyping</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;face_detect_v0_s_yv11&#39;</span><span class="p">,</span>
+                 <span class="n">conf_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> \
         <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Detect human faces in real images using YOLO models.</span>
+<span class="sd">    Detect human faces in both real photo and anime images using YOLO models.</span>
 
 <span class="sd">    This function applies a pre-trained YOLO model to detect faces in the given anime image.</span>
 <span class="sd">    It supports different model levels and versions, allowing users to balance between</span>
@@ -142,22 +143,22 @@
 <span class="sd">    :rtype: List[Tuple[Tuple[int, int, int, int], str, float]]</span>
 
 <span class="sd">    :example:</span>
-<span class="sd">        &gt;&gt;&gt; from realutils.detect import detect_real_faces</span>
+<span class="sd">        &gt;&gt;&gt; from realutils.detect import detect_faces</span>
 <span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; detect_real_faces(&#39;yolo/solo.jpg&#39;)</span>
-<span class="sd">        [((168, 79, 245, 199), &#39;face&#39;, 0.7996422052383423)]</span>
-<span class="sd">        &gt;&gt;&gt; detect_real_faces(&#39;yolo/2girls.jpg&#39;)</span>
-<span class="sd">        [((721, 152, 1082, 726), &#39;face&#39;, 0.8811314702033997), ((158, 263, 509, 714), &#39;face&#39;, 0.8745490908622742)]</span>
-<span class="sd">        &gt;&gt;&gt; detect_real_faces(&#39;yolo/3+cosplay.jpg&#39;)</span>
-<span class="sd">        [((351, 228, 410, 302), &#39;face&#39;, 0.8392542600631714), ((384, 63, 427, 116), &#39;face&#39;, 0.8173024654388428), ((195, 109, 246, 161), &#39;face&#39;, 0.8126493692398071)]</span>
-<span class="sd">        &gt;&gt;&gt; detect_real_faces(&#39;yolo/multiple.jpg&#39;)</span>
-<span class="sd">        [((1074, 732, 1258, 987), &#39;face&#39;, 0.8792377710342407), ((1378, 536, 1541, 716), &#39;face&#39;, 0.8607611656188965), ((554, 295, 759, 557), &#39;face&#39;, 0.8541485071182251), ((897, 315, 1068, 520), &#39;face&#39;, 0.8539882898330688), ((1194, 230, 1329, 403), &#39;face&#39;, 0.8324605226516724)]</span>
+<span class="sd">        &gt;&gt;&gt; detect_faces(&#39;yolo/solo.jpg&#39;)</span>
+<span class="sd">        [((157, 94, 252, 208), &#39;face&#39;, 0.8836570382118225)]</span>
+<span class="sd">        &gt;&gt;&gt; detect_faces(&#39;yolo/2girls.jpg&#39;)</span>
+<span class="sd">        [((718, 154, 1110, 728), &#39;face&#39;, 0.8841166496276855), ((157, 275, 519, 715), &#39;face&#39;, 0.8668240904808044)]</span>
+<span class="sd">        &gt;&gt;&gt; detect_faces(&#39;yolo/3+cosplay.jpg&#39;)</span>
+<span class="sd">        [((349, 227, 413, 305), &#39;face&#39;, 0.8543888330459595), ((383, 61, 432, 117), &#39;face&#39;, 0.8080574870109558), ((194, 107, 245, 162), &#39;face&#39;, 0.8035706877708435)]</span>
+<span class="sd">        &gt;&gt;&gt; detect_faces(&#39;yolo/multiple.jpg&#39;)</span>
+<span class="sd">        [((1070, 728, 1259, 985), &#39;face&#39;, 0.8765808939933777), ((548, 286, 760, 558), &#39;face&#39;, 0.8693087697029114), ((896, 315, 1067, 520), &#39;face&#39;, 0.8671919107437134), ((1198, 220, 1342, 406), &#39;face&#39;, 0.8485829830169678), ((1376, 526, 1546, 719), &#39;face&#39;, 0.8469308018684387)]</span>
 
 <span class="sd">        &gt;&gt;&gt; from imgutils.detect import detection_visualize</span>
 <span class="sd">        &gt;&gt;&gt; from matplotlib import pyplot as plt</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; image = &#39;yolo/solo.jpg&#39;</span>
-<span class="sd">        &gt;&gt;&gt; result = detect_real_faces(image)</span>
+<span class="sd">        &gt;&gt;&gt; result = detect_faces(image)</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # visualize it</span>
 <span class="sd">        &gt;&gt;&gt; plt.imshow(detection_visualize(image, result))</span>
@@ -208,9 +209,8 @@
                 </dl>
                 <dl>
                     <dt>Branches</dt>
-                        <dd><a href="../../../../dev/face/index.html">dev/face</a></dd>
-                        <dd><a href="../../../../HEAD/index.html">HEAD</a></dd>
                         <dd><a href="face.html">main</a></dd>
+                        <dd><a href="../../../../HEAD/index.html">HEAD</a></dd>
                 </dl>
         </div>
     </div><script>

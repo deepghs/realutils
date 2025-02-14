@@ -10,4 +10,5 @@ realutils.detect
     :maxdepth: 3
 
     face
+    real_face
     yolo
