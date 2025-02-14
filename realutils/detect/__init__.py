@@ -4,5 +4,6 @@ Overview:
 """
 from .face import detect_faces
 from .head import detect_heads
+from .person import detect_persons
 from .real_face import detect_real_faces
 from .yolo import detect_by_yolo
