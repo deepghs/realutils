@@ -46,7 +46,7 @@ setup(
     long_description_content_type='text/markdown',
     author=meta['__AUTHOR__'],
     author_email=meta['__AUTHOR_EMAIL__'],
-    license='GNU Affero General Public License v3',
+    license='GNU General Public License v3',
     keywords='image-processing, computer-vision, deep-learning, data-augmentation',
     url='https://github.com/deepghs/realutils',
 
@@ -65,7 +65,7 @@ setup(
         'Intended Audience :: Information Technology',
 
         # License
-        'License :: OSI Approved :: GNU Affero General Public License v3',
+        'License :: OSI Approved :: GNU General Public License v3',
 
         # Programming Language
         'Programming Language :: Python',
