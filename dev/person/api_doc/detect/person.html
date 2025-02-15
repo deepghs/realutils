@@ -106,7 +106,7 @@
 <dl>
 <dt>Overview:</dt><dd><p>Detect persons in both real photo and anime images.</p>
 <p>Trained with <a class="reference external" href="https://huggingface.co/datasets/deepghs/anime_person_detection">deepghs/anime_person_detection</a>     and open-sourced real photos datasets.</p>
-<img alt="api_doc/detect/person_detect_demo.plot.py.svg" class="align-center" src="api_doc/detect/person_detect_demo.plot.py.svg" /><p>This is an overall benchmark of all the person detect models:</p>
+<img alt="../../_images/person_detect_demo.plot.py.svg" class="align-center" src="../../_images/person_detect_demo.plot.py.svg" /><p>This is an overall benchmark of all the person detect models:</p>
 <img alt="../../_images/person_detect_benchmark.plot.py.svg" class="align-center" src="../../_images/person_detect_benchmark.plot.py.svg" /><p>The models are hosted on
 <a class="reference external" href="https://huggingface.co/deepghs/real_person_detection">huggingface - deepghs/real_person_detection</a>.</p>
 </dd>
@@ -144,13 +144,13 @@ Detections with IoU above this threshold will be merged. Default is 0.7.</p></li
 <dd class="field-even"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">realutils.detect</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_persons</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">detect_persons</span><span class="p">(</span><span class="s1">&#39;yolo/solo.jpg&#39;</span><span class="p">)</span>
-<span class="go">[((162, 47, 305, 210), &#39;person&#39;, 0.7701659202575684)]</span>
+<span class="go">[((0, 30, 398, 599), &#39;person&#39;, 0.926707923412323)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">detect_persons</span><span class="p">(</span><span class="s1">&#39;yolo/2girls.jpg&#39;</span><span class="p">)</span>
-<span class="go">[((683, 48, 1199, 754), &#39;person&#39;, 0.8410779237747192), ((105, 91, 570, 734), &#39;person&#39;, 0.8339194059371948)]</span>
+<span class="go">[((0, 74, 760, 1598), &#39;person&#39;, 0.7578195333480835), ((437, 33, 1200, 1600), &#39;person&#39;, 0.6875205039978027)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">detect_persons</span><span class="p">(</span><span class="s1">&#39;yolo/3+cosplay.jpg&#39;</span><span class="p">)</span>
-<span class="go">[((329, 194, 426, 309), &#39;person&#39;, 0.8123012781143188), ((359, 20, 448, 122), &#39;person&#39;, 0.8047150373458862), ((185, 81, 265, 166), &#39;person&#39;, 0.7797152996063232)]</span>
+<span class="go">[((106, 69, 347, 591), &#39;person&#39;, 0.8794167041778564), ((326, 14, 592, 534), &#39;person&#39;, 0.8018194437026978), ((167, 195, 676, 675), &#39;person&#39;, 0.5351650714874268)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">detect_persons</span><span class="p">(</span><span class="s1">&#39;yolo/multiple.jpg&#39;</span><span class="p">)</span>
-<span class="go">[((867, 259, 1084, 527), &#39;person&#39;, 0.8264595866203308), ((1364, 448, 1583, 724), &#39;person&#39;, 0.8254891633987427), ((480, 201, 781, 565), &#39;person&#39;, 0.8191508054733276), ((1189, 175, 1398, 412), &#39;person&#39;, 0.8097156286239624), ((1028, 671, 1277, 992), &#39;person&#39;, 0.8084591627120972)]</span>
+<span class="go">[((1305, 441, 1891, 1534), &#39;person&#39;, 0.8789498805999756), ((206, 191, 932, 1533), &#39;person&#39;, 0.8423126935958862), ((1054, 170, 1417, 1055), &#39;person&#39;, 0.8138357996940613), ((697, 659, 1473, 1534), &#39;person&#39;, 0.7926754951477051), ((685, 247, 1128, 1526), &#39;person&#39;, 0.5261526703834534), ((690, 251, 1125, 1126), &#39;person&#39;, 0.4193646311759949)]</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.detect</span><span class="w"> </span><span class="kn">import</span> <span class="n">detection_visualize</span>
