@@ -12,4 +12,5 @@ realutils.detect
     face
     real_face
     head
+    person
     yolo
