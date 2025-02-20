@@ -251,7 +251,7 @@ def classify_with_siglip(
     texts = texts / np.linalg.norm(texts, axis=-1, keepdims=True)
 
     similarities = images @ texts.T
-    logit_scale, logit_bias = _get_logit_scale(_DEFAULT_MODEL)
+    logit_scale, logit_bias = _get_logit_scale(model_name=model_name)
     logits = similarities * np.exp(logit_scale) + logit_bias
     predictions = sigmoid(logits)
 

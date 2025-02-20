@@ -257,7 +257,7 @@ def classify_with_clip(
     texts = texts / np.linalg.norm(texts, axis=-1, keepdims=True)
 
     similarities = images @ texts.T
-    logits = similarities * np.exp(_get_logit_scale(_DEFAULT_MODEL))
+    logits = similarities * np.exp(_get_logit_scale(model_name=model_name))
     predictions = np.exp(logits) / np.exp(logits).sum(axis=-1, keepdims=True)
 
     return vreplace(fmt, {
