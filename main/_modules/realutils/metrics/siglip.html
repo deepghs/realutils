@@ -106,109 +106,17 @@
 <span class="sd">        :align: center</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">hf_hub_download</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiImagesTyping</span><span class="p">,</span> <span class="n">load_images</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.preprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_pillow_transforms</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_onnx_model</span><span class="p">,</span> <span class="n">ts_lru_cache</span><span class="p">,</span> <span class="n">vreplace</span><span class="p">,</span> <span class="n">sigmoid</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tokenizers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tokenizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiImagesTyping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.generic</span><span class="w"> </span><span class="kn">import</span> <span class="n">siglip_image_encode</span><span class="p">,</span> <span class="n">siglip_text_encode</span><span class="p">,</span> <span class="n">siglip_predict</span>
 
 <span class="n">_REPO_ID</span> <span class="o">=</span> <span class="s1">&#39;deepghs/siglip_onnx&#39;</span>
 <span class="n">_DEFAULT_MODEL</span> <span class="o">=</span> <span class="s1">&#39;google/siglip-base-patch16-256-multilingual&#39;</span>
 
 
-<span class="nd">@ts_lru_cache</span><span class="p">()</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">_open_image_encoder</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Open and cache the ONNX image encoder model.</span>
-
-<span class="sd">    :param model_name: Name of the SigLIP model variant</span>
-<span class="sd">    :type model_name: str</span>
-<span class="sd">    :return: Loaded ONNX model for image encoding</span>
-<span class="sd">    :rtype: ONNXModel</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">open_onnx_model</span><span class="p">(</span><span class="n">hf_hub_download</span><span class="p">(</span>
-        <span class="n">repo_id</span><span class="o">=</span><span class="n">_REPO_ID</span><span class="p">,</span>
-        <span class="n">repo_type</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">,</span>
-        <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">/image_encode.onnx&#39;</span><span class="p">,</span>
-    <span class="p">))</span>
-
-
-<span class="nd">@ts_lru_cache</span><span class="p">()</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">_open_image_preprocessor</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load and cache the image preprocessing pipeline configuration.</span>
-
-<span class="sd">    :param model_name: Name of the SigLIP model variant</span>
-<span class="sd">    :type model_name: str</span>
-<span class="sd">    :return: Configured image preprocessing transforms</span>
-<span class="sd">    :rtype: Callable</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">hf_hub_download</span><span class="p">(</span>
-            <span class="n">repo_id</span><span class="o">=</span><span class="n">_REPO_ID</span><span class="p">,</span>
-            <span class="n">repo_type</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">,</span>
-            <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">/preprocessor.json&#39;</span><span class="p">,</span>
-    <span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">create_pillow_transforms</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="s1">&#39;stages&#39;</span><span class="p">])</span>
-
-
-<span class="nd">@ts_lru_cache</span><span class="p">()</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">_open_text_encoder</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Open and cache the ONNX text encoder model.</span>
-
-<span class="sd">    :param model_name: Name of the SigLIP model variant</span>
-<span class="sd">    :type model_name: str</span>
-<span class="sd">    :return: Loaded ONNX model for text encoding</span>
-<span class="sd">    :rtype: ONNXModel</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">open_onnx_model</span><span class="p">(</span><span class="n">hf_hub_download</span><span class="p">(</span>
-        <span class="n">repo_id</span><span class="o">=</span><span class="n">_REPO_ID</span><span class="p">,</span>
-        <span class="n">repo_type</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">,</span>
-        <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">/text_encode.onnx&#39;</span><span class="p">,</span>
-    <span class="p">))</span>
-
-
-<span class="nd">@ts_lru_cache</span><span class="p">()</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">_open_text_tokenizer</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load and cache the text tokenizer.</span>
-
-<span class="sd">    :param model_name: Name of the SigLIP model variant</span>
-<span class="sd">    :type model_name: str</span>
-<span class="sd">    :return: Initialized tokenizer</span>
-<span class="sd">    :rtype: Tokenizer</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">Tokenizer</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">hf_hub_download</span><span class="p">(</span>
-        <span class="n">repo_id</span><span class="o">=</span><span class="n">_REPO_ID</span><span class="p">,</span>
-        <span class="n">repo_type</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">,</span>
-        <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">/tokenizer.json&#39;</span><span class="p">,</span>
-    <span class="p">))</span>
-
-
-<span class="nd">@ts_lru_cache</span><span class="p">()</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_logit_scale</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the logit scale and bias parameters from model metadata.</span>
-
-<span class="sd">    :param model_name: Name of the SigLIP model variant</span>
-<span class="sd">    :type model_name: str</span>
-<span class="sd">    :return: Tuple of logit scale and bias values</span>
-<span class="sd">    :rtype: tuple[float, float]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">hf_hub_download</span><span class="p">(</span>
-            <span class="n">repo_id</span><span class="o">=</span><span class="n">_REPO_ID</span><span class="p">,</span>
-            <span class="n">repo_type</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">,</span>
-            <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">/meta.json&#39;</span><span class="p">,</span>
-    <span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">meta_info</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;logit_scale&#39;</span><span class="p">],</span> <span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;logit_bias&#39;</span><span class="p">]</span>
-
-
-<div class="viewcode-block" id="get_siglip_image_embedding"><a class="viewcode-back" href="../../../api_doc/metrics/siglip.html#realutils.metrics.siglip.get_siglip_image_embedding">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_siglip_image_embedding</span><span class="p">(</span><span class="n">images</span><span class="p">:</span> <span class="n">MultiImagesTyping</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_MODEL</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;embeddings&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="get_siglip_image_embedding"><a class="viewcode-back" href="../../../api_doc/metrics/siglip.html#realutils.metrics.siglip.get_siglip_image_embedding">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_siglip_image_embedding</span><span class="p">(</span><span class="n">images</span><span class="p">:</span> <span class="n">MultiImagesTyping</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_MODEL</span><span class="p">,</span> <span class="n">fmt</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="s1">&#39;embeddings&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate embeddings for input images using the SigLIP model.</span>
 
@@ -217,6 +125,7 @@
 <span class="sd">    :param model_name: Name of the SigLIP model variant to use</span>
 <span class="sd">    :type model_name: str</span>
 <span class="sd">    :param fmt: Output format, either &#39;encodings&#39; or &#39;embeddings&#39;</span>
+<span class="sd">    :type fmt: Any</span>
 
 <span class="sd">    :return: Image embeddings or encodings based on fmt parameter</span>
 
@@ -233,19 +142,15 @@
 <span class="sd">        &gt;&gt;&gt; emb.shape, emb.dtype</span>
 <span class="sd">        ((2, 768), dtype(&#39;float32&#39;))</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">preprocessor</span> <span class="o">=</span> <span class="n">_open_image_preprocessor</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">_open_image_encoder</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
-
-    <span class="n">images</span> <span class="o">=</span> <span class="n">load_images</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="n">force_background</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
-    <span class="n">input_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">preprocessor</span><span class="p">(</span><span class="n">image</span><span class="p">)</span> <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images</span><span class="p">])</span>
-    <span class="n">encodings</span><span class="p">,</span> <span class="n">embeddings</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s1">&#39;encodings&#39;</span><span class="p">,</span> <span class="s1">&#39;embeddings&#39;</span><span class="p">],</span> <span class="p">{</span><span class="s1">&#39;pixel_values&#39;</span><span class="p">:</span> <span class="n">input_</span><span class="p">})</span>
-    <span class="k">return</span> <span class="n">vreplace</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="p">{</span>
-        <span class="s1">&#39;encodings&#39;</span><span class="p">:</span> <span class="n">encodings</span><span class="p">,</span>
-        <span class="s1">&#39;embeddings&#39;</span><span class="p">:</span> <span class="n">embeddings</span><span class="p">,</span>
-    <span class="p">})</span></div>
+    <span class="k">return</span> <span class="n">siglip_image_encode</span><span class="p">(</span>
+        <span class="n">images</span><span class="o">=</span><span class="n">images</span><span class="p">,</span>
+        <span class="n">repo_id</span><span class="o">=</span><span class="n">_REPO_ID</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+        <span class="n">fmt</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_siglip_text_embedding"><a class="viewcode-back" href="../../../api_doc/metrics/siglip.html#realutils.metrics.siglip.get_siglip_text_embedding">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_siglip_text_embedding</span><span class="p">(</span><span class="n">texts</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_MODEL</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;embeddings&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="get_siglip_text_embedding"><a class="viewcode-back" href="../../../api_doc/metrics/siglip.html#realutils.metrics.siglip.get_siglip_text_embedding">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_siglip_text_embedding</span><span class="p">(</span><span class="n">texts</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_MODEL</span><span class="p">,</span> <span class="n">fmt</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="s1">&#39;embeddings&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate embeddings for input texts using the SigLIP model.</span>
 
@@ -254,6 +159,7 @@
 <span class="sd">    :param model_name: Name of the SigLIP model variant to use</span>
 <span class="sd">    :type model_name: str</span>
 <span class="sd">    :param fmt: Output format, either &#39;encodings&#39; or &#39;embeddings&#39;</span>
+<span class="sd">    :type fmt: Any</span>
 
 <span class="sd">    :return: Text embeddings or encodings based on fmt parameter</span>
 
@@ -275,27 +181,19 @@
 <span class="sd">        &gt;&gt;&gt; emb.shape, emb.dtype</span>
 <span class="sd">        ((4, 768), dtype(&#39;float32&#39;))</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">_open_text_tokenizer</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">_open_text_encoder</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="n">texts</span><span class="p">]</span>
-    <span class="n">encoded</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode_batch</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span>
-    <span class="n">input_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">ids</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">encoded</span><span class="p">])</span>
-    <span class="n">encodings</span><span class="p">,</span> <span class="n">embeddings</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s1">&#39;encodings&#39;</span><span class="p">,</span> <span class="s1">&#39;embeddings&#39;</span><span class="p">],</span> <span class="p">{</span>
-        <span class="s1">&#39;input_ids&#39;</span><span class="p">:</span> <span class="n">input_ids</span><span class="p">,</span>
-    <span class="p">})</span>
-    <span class="k">return</span> <span class="n">vreplace</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="p">{</span>
-        <span class="s1">&#39;encodings&#39;</span><span class="p">:</span> <span class="n">encodings</span><span class="p">,</span>
-        <span class="s1">&#39;embeddings&#39;</span><span class="p">:</span> <span class="n">embeddings</span><span class="p">,</span>
-    <span class="p">})</span></div>
+    <span class="k">return</span> <span class="n">siglip_text_encode</span><span class="p">(</span>
+        <span class="n">texts</span><span class="o">=</span><span class="n">texts</span><span class="p">,</span>
+        <span class="n">repo_id</span><span class="o">=</span><span class="n">_REPO_ID</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+        <span class="n">fmt</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="classify_with_siglip"><a class="viewcode-back" href="../../../api_doc/metrics/siglip.html#realutils.metrics.siglip.classify_with_siglip">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">classify_with_siglip</span><span class="p">(</span>
         <span class="n">images</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">MultiImagesTyping</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
         <span class="n">texts</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
         <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_MODEL</span><span class="p">,</span>
-        <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;predictions&#39;</span><span class="p">,</span>
+        <span class="n">fmt</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="s1">&#39;predictions&#39;</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform image-text classification using the SigLIP model.</span>
@@ -307,6 +205,7 @@
 <span class="sd">    :param model_name: Name of the SigLIP model variant to use</span>
 <span class="sd">    :type model_name: str</span>
 <span class="sd">    :param fmt: Output format, one of &#39;similarities&#39;, &#39;logits&#39;, or &#39;predictions&#39;</span>
+<span class="sd">    :type fmt: Any</span>
 
 <span class="sd">    :return: Classification results in specified format</span>
 
@@ -329,24 +228,13 @@
 <span class="sd">               [3.3248414e-06, 2.2294161e-07, 1.9753381e-09, 2.2561464e-06]],</span>
 <span class="sd">              dtype=float32)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">images</span> <span class="o">=</span> <span class="n">get_siglip_image_embedding</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;embeddings&#39;</span><span class="p">)</span>
-    <span class="n">images</span> <span class="o">=</span> <span class="n">images</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">texts</span> <span class="o">=</span> <span class="n">get_siglip_text_embedding</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;embeddings&#39;</span><span class="p">)</span>
-    <span class="n">texts</span> <span class="o">=</span> <span class="n">texts</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">similarities</span> <span class="o">=</span> <span class="n">images</span> <span class="o">@</span> <span class="n">texts</span><span class="o">.</span><span class="n">T</span>
-    <span class="n">logit_scale</span><span class="p">,</span> <span class="n">logit_bias</span> <span class="o">=</span> <span class="n">_get_logit_scale</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">)</span>
-    <span class="n">logits</span> <span class="o">=</span> <span class="n">similarities</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logit_scale</span><span class="p">)</span> <span class="o">+</span> <span class="n">logit_bias</span>
-    <span class="n">predictions</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">vreplace</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="p">{</span>
-        <span class="s1">&#39;similarities&#39;</span><span class="p">:</span> <span class="n">similarities</span><span class="p">,</span>
-        <span class="s1">&#39;logits&#39;</span><span class="p">:</span> <span class="n">logits</span><span class="p">,</span>
-        <span class="s1">&#39;predictions&#39;</span><span class="p">:</span> <span class="n">predictions</span><span class="p">,</span>
-    <span class="p">})</span></div>
+    <span class="k">return</span> <span class="n">siglip_predict</span><span class="p">(</span>
+        <span class="n">images</span><span class="o">=</span><span class="n">images</span><span class="p">,</span>
+        <span class="n">texts</span><span class="o">=</span><span class="n">texts</span><span class="p">,</span>
+        <span class="n">repo_id</span><span class="o">=</span><span class="n">_REPO_ID</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+        <span class="n">fmt</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span>
+    <span class="p">)</span></div>
 </pre></div>
 
 
@@ -386,9 +274,9 @@
                 </dl>
                 <dl>
                     <dt>Branches</dt>
-                        <dd><a href="../../../../dev/framework/index.html">dev/framework</a></dd>
-                        <dd><a href="../../../../HEAD/index.html">HEAD</a></dd>
                         <dd><a href="siglip.html">main</a></dd>
+                        <dd><a href="../../../../HEAD/index.html">HEAD</a></dd>
+                        <dd><a href="../../../../dev/face/index.html">dev/face</a></dd>
                 </dl>
         </div>
     </div><script>
