@@ -35,6 +35,12 @@ Overview:
         .. image:: yolo11_benchmark.plot.py.svg
             :align: center
 
+    .. collapse:: Overview of YOLO12 Models
+        :open:
+
+        .. image:: yolo12_benchmark.plot.py.svg
+            :align: center
+
     .. collapse:: Overview of RT-DETR Models
 
         .. image:: rtdetr_benchmark.plot.py.svg
