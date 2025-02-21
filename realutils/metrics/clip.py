@@ -22,110 +22,14 @@ Overview:
 
 """
 
-import json
 from typing import List, Union
 
 import numpy as np
-from huggingface_hub import hf_hub_download
-from imgutils.data import MultiImagesTyping, load_images
-from imgutils.preprocess import create_pillow_transforms
-from imgutils.utils import open_onnx_model, ts_lru_cache, vreplace
-from tokenizers import Tokenizer
+from imgutils.data import MultiImagesTyping
+from imgutils.generic import clip_image_encode, clip_text_encode, clip_predict
 
 _REPO_ID = 'deepghs/clip_onnx'
 _DEFAULT_MODEL = 'openai/clip-vit-base-patch32'
-
-
-@ts_lru_cache()
-def _open_image_encoder(model_name: str):
-    """
-    Open and cache the CLIP image encoder model.
-
-    :param model_name: Name of the CLIP model variant
-    :type model_name: str
-
-    :return: Loaded ONNX model for image encoding
-    :rtype: ONNXModel
-    """
-    return open_onnx_model(hf_hub_download(
-        repo_id=_REPO_ID,
-        repo_type='model',
-        filename=f'{model_name}/image_encode.onnx',
-    ))
-
-
-@ts_lru_cache()
-def _open_image_preprocessor(model_name: str):
-    """
-    Open and cache the image preprocessor configuration.
-
-    :param model_name: Name of the CLIP model variant
-    :type model_name: str
-
-    :return: Configured image preprocessing transforms
-    :rtype: callable
-    """
-    with open(hf_hub_download(
-            repo_id=_REPO_ID,
-            repo_type='model',
-            filename=f'{model_name}/preprocessor.json',
-    ), 'r') as f:
-        return create_pillow_transforms(json.load(f)['stages'])
-
-
-@ts_lru_cache()
-def _open_text_encoder(model_name: str):
-    """
-    Open and cache the CLIP text encoder model.
-
-    :param model_name: Name of the CLIP model variant
-    :type model_name: str
-
-    :return: Loaded ONNX model for text encoding
-    :rtype: ONNXModel
-    """
-    return open_onnx_model(hf_hub_download(
-        repo_id=_REPO_ID,
-        repo_type='model',
-        filename=f'{model_name}/text_encode.onnx',
-    ))
-
-
-@ts_lru_cache()
-def _open_text_tokenizer(model_name: str):
-    """
-    Open and cache the text tokenizer.
-
-    :param model_name: Name of the CLIP model variant
-    :type model_name: str
-
-    :return: Loaded tokenizer
-    :rtype: Tokenizer
-    """
-    return Tokenizer.from_file(hf_hub_download(
-        repo_id=_REPO_ID,
-        repo_type='model',
-        filename=f'{model_name}/tokenizer.json',
-    ))
-
-
-@ts_lru_cache()
-def _get_logit_scale(model_name: str):
-    """
-    Get and cache the logit scale factor for the model.
-
-    :param model_name: Name of the CLIP model variant
-    :type model_name: str
-
-    :return: Logit scale value
-    :rtype: float
-    """
-    with open(hf_hub_download(
-            repo_id=_REPO_ID,
-            repo_type='model',
-            filename=f'{model_name}/meta.json',
-    ), 'r') as f:
-        return json.load(f)['logit_scale']
 
 
 def get_clip_image_embedding(images: MultiImagesTyping, model_name: str = _DEFAULT_MODEL, fmt='embeddings'):
@@ -153,16 +57,12 @@ def get_clip_image_embedding(images: MultiImagesTyping, model_name: str = _DEFAU
         >>> emb.shape, emb.dtype
         ((2, 512), dtype('float32'))
     """
-    preprocessor = _open_image_preprocessor(model_name)
-    model = _open_image_encoder(model_name)
-
-    images = load_images(images, mode='RGB', force_background='white')
-    input_ = np.stack([preprocessor(image) for image in images])
-    encodings, embeddings = model.run(['encodings', 'embeddings'], {'pixel_values': input_})
-    return vreplace(fmt, {
-        'encodings': encodings,
-        'embeddings': embeddings,
-    })
+    return clip_image_encode(
+        images=images,
+        repo_id=_REPO_ID,
+        model_name=model_name,
+        fmt=fmt,
+    )
 
 
 def get_clip_text_embedding(texts: Union[str, List[str]], model_name: str = _DEFAULT_MODEL, fmt='embeddings'):
@@ -194,22 +94,12 @@ def get_clip_text_embedding(texts: Union[str, List[str]], model_name: str = _DEF
         >>> emb.shape, emb.dtype
         ((3, 512), dtype('float32'))
     """
-    tokenizer = _open_text_tokenizer(model_name)
-    model = _open_text_encoder(model_name)
-
-    if isinstance(texts, str):
-        texts = [texts]
-    encoded = tokenizer.encode_batch(texts)
-    input_ids = np.stack([np.array(item.ids, dtype=np.int64) for item in encoded])
-    attention_mask = np.stack([np.array(item.attention_mask, dtype=np.int64) for item in encoded])
-    encodings, embeddings = model.run(['encodings', 'embeddings'], {
-        'input_ids': input_ids,
-        'attention_mask': attention_mask,
-    })
-    return vreplace(fmt, {
-        'encodings': encodings,
-        'embeddings': embeddings,
-    })
+    return clip_text_encode(
+        texts=texts,
+        repo_id=_REPO_ID,
+        model_name=model_name,
+        fmt=fmt,
+    )
 
 
 def classify_with_clip(
@@ -248,20 +138,10 @@ def classify_with_clip(
         array([[0.98039913, 0.00506729, 0.01453355],
                [0.05586662, 0.02006196, 0.92407143]], dtype=float32)
     """
-    if not isinstance(images, np.ndarray):
-        images = get_clip_image_embedding(images, model_name=model_name, fmt='embeddings')
-    images = images / np.linalg.norm(images, axis=-1, keepdims=True)
-
-    if not isinstance(texts, np.ndarray):
-        texts = get_clip_text_embedding(texts, model_name=model_name, fmt='embeddings')
-    texts = texts / np.linalg.norm(texts, axis=-1, keepdims=True)
-
-    similarities = images @ texts.T
-    logits = similarities * np.exp(_get_logit_scale(model_name=model_name))
-    predictions = np.exp(logits) / np.exp(logits).sum(axis=-1, keepdims=True)
-
-    return vreplace(fmt, {
-        'similarities': similarities,
-        'logits': logits,
-        'predictions': predictions,
-    })
+    return clip_predict(
+        images=images,
+        texts=texts,
+        repo_id=_REPO_ID,
+        model_name=model_name,
+        fmt=fmt,
+    )
