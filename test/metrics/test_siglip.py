@@ -2,9 +2,18 @@ import re
 
 import numpy as np
 import pytest
+from imgutils.generic.siglip import _open_models_for_repo_id
 
 from realutils.metrics.siglip import get_siglip_image_embedding, get_siglip_text_embedding, classify_with_siglip
 from test.testings import get_testfile
+
+
+@pytest.fixture(scope='module', autouse=True)
+def _release_model():
+    try:
+        yield
+    finally:
+        _open_models_for_repo_id.cache_clear()
 
 
 @pytest.mark.unittest
