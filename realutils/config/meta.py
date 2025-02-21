@@ -7,7 +7,7 @@ Overview:
 __TITLE__ = 'realutils'
 
 #: Version of this project.
-__VERSION__ = '0.0.3'
+__VERSION__ = '0.0.4'
 
 #: Short description of the project, will be included in ``setup.py``.
 __DESCRIPTION__ = 'A convenient and user-friendly image data processing library that integrates ' \
