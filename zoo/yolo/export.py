@@ -46,13 +46,14 @@ def export(repository: str = 'deepghs/yolos', model_type: str = 'yolo',
         best_pt_exp = os.path.join(workdir, 'model.pt')
         logging.info(f'Copying best pt {best_pt!r} to {best_pt_exp!r}')
         state_dict = torch.load(best_pt)
-        if state_dict['train_args']['data']:
-            state_dict['train_args']['data'] = sha3(state_dict['train_args']['data'].encode(), n=224)
-        if state_dict['train_args']['project']:
-            state_dict['train_args']['project'] = sha3(state_dict['train_args']['project'].encode(), n=224)
-        if state_dict['train_args']['model'] and \
-                ('/' in state_dict['train_args']['model'] or '\\' in state_dict['train_args']['model']):
-            state_dict['train_args']['model'] = sha3(state_dict['train_args']['model'].encode(), n=224)
+        if 'train_args' in state_dict:
+            if state_dict['train_args']['data']:
+                state_dict['train_args']['data'] = sha3(state_dict['train_args']['data'].encode(), n=224)
+            if state_dict['train_args']['project']:
+                state_dict['train_args']['project'] = sha3(state_dict['train_args']['project'].encode(), n=224)
+            if state_dict['train_args']['model'] and \
+                    ('/' in state_dict['train_args']['model'] or '\\' in state_dict['train_args']['model']):
+                state_dict['train_args']['model'] = sha3(state_dict['train_args']['model'].encode(), n=224)
         torch.save(state_dict, best_pt_exp)
         # shutil.copy(best_pt, best_pt_exp)
         files.append((best_pt_exp, 'model.pt'))
@@ -122,5 +123,10 @@ if __name__ == '__main__':
     # export(model_name='yolo11l')
     # export(model_name='yolo11x')
 
-    export(model_name='rtdetr-l', model_type='rtdetr', opset_version=16)
-    export(model_name='rtdetr-x', model_type='rtdetr', opset_version=16)
+    # export(model_name='rtdetr-l', model_type='rtdetr', opset_version=16)
+    # export(model_name='rtdetr-x', model_type='rtdetr', opset_version=16)
+    export(model_name='yolo12n')
+    export(model_name='yolo12s')
+    export(model_name='yolo12m')
+    export(model_name='yolo12l')
+    export(model_name='yolo12x')
