@@ -101,6 +101,17 @@ def extract(export_dir: str, model_repo_id: str, pretrained: bool = True, seed: 
         raise RuntimeError(f'No classifier module found in model {type(model)}.')
     logging.info(f'Classifier module found at {classifier_position!r}:\n{classifier}')
 
+    matrix_data_file = os.path.join(export_dir, 'matrix.npz')
+    bias = classifier.bias.numpy()
+    weight = classifier.weight.numpy().T
+    logging.info(f'Saving matrix data file to {matrix_data_file!r}, '
+                 f'bias: {bias.dtype!r}{bias.shape!r}, weight: {weight.dtype!r}{weight.shape!r}.')
+    np.savez(
+        matrix_data_file,
+        bias=bias,
+        weight=weight,
+    )
+
     wrapped_model = ModuleWrapper(model, classifier=classifier)
     with torch.no_grad():
         conv_features, conv_output, conv_preds = wrapped_model(dummy_input)
