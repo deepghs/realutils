@@ -103,7 +103,7 @@
 <span class="sd">    .. image:: idolsankaku_benchmark.plot.py.svg</span>
 <span class="sd">        :align: center</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">onnxruntime</span>
@@ -114,7 +114,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_image</span><span class="p">,</span> <span class="n">ImageTyping</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.tagging.format</span><span class="w"> </span><span class="kn">import</span> <span class="n">remove_underline</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.tagging.overlap</span><span class="w"> </span><span class="kn">import</span> <span class="n">drop_overlap_tags</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_onnx_model</span><span class="p">,</span> <span class="n">vreplace</span><span class="p">,</span> <span class="n">ts_lru_cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_onnx_model</span><span class="p">,</span> <span class="n">vreplace</span><span class="p">,</span> <span class="n">ts_lru_cache</span><span class="p">,</span> <span class="n">sigmoid</span>
 
 <span class="n">EXP_REPO</span> <span class="o">=</span> <span class="s1">&#39;deepghs/idolsankaku_tagger_with_embeddings&#39;</span>
 <span class="n">EVA02_LARGE_MODEL_DSV3_REPO</span> <span class="o">=</span> <span class="s2">&quot;deepghs/idolsankaku-eva02-large-tagger-v1&quot;</span>
@@ -192,6 +192,23 @@
     <span class="k">return</span> <span class="n">tag_names</span><span class="p">,</span> <span class="n">rating_indexes</span><span class="p">,</span> <span class="n">general_indexes</span><span class="p">,</span> <span class="n">character_indexes</span>
 
 
+<span class="nd">@ts_lru_cache</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_idolsankaku_weights</span><span class="p">(</span><span class="n">model_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the weights for a idolsankaku model.</span>
+
+<span class="sd">    :param model_name: The name of the model.</span>
+<span class="sd">    :type model_name: str</span>
+<span class="sd">    :return: The loaded weights.</span>
+<span class="sd">    :rtype: numpy.ndarray</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_version_support_check</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">hf_hub_download</span><span class="p">(</span>
+        <span class="n">repo_id</span><span class="o">=</span><span class="n">EXP_REPO</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">MODEL_NAMES</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="si">}</span><span class="s1">/matrix.npz&#39;</span><span class="p">,</span>
+    <span class="p">))</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_mcut_threshold</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the Maximum Cut Thresholding (MCut) for multi-label classification.</span>
@@ -254,7 +271,7 @@
         <span class="n">character_mcut_enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">no_underline</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">drop_overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">fmt</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;rating&#39;</span><span class="p">,</span> <span class="s1">&#39;general&#39;</span><span class="p">,</span> <span class="s1">&#39;character&#39;</span><span class="p">),</span>
+        <span class="n">fmt</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;rating&#39;</span><span class="p">,</span> <span class="s1">&#39;general&#39;</span><span class="p">,</span> <span class="s1">&#39;character&#39;</span><span class="p">),</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Post-process the embedding and prediction results.</span>
@@ -280,6 +297,7 @@
 <span class="sd">    :param drop_overlap: Whether to drop overlapping tags.</span>
 <span class="sd">    :type drop_overlap: bool</span>
 <span class="sd">    :param fmt: The format of the output.</span>
+<span class="sd">    :type fmt: Any</span>
 <span class="sd">    :return: The post-processed results.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pred</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> \
@@ -330,7 +348,7 @@
         <span class="n">character_mcut_enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">no_underline</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">drop_overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">fmt</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;rating&#39;</span><span class="p">,</span> <span class="s1">&#39;general&#39;</span><span class="p">,</span> <span class="s1">&#39;character&#39;</span><span class="p">),</span>
+        <span class="n">fmt</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;rating&#39;</span><span class="p">,</span> <span class="s1">&#39;general&#39;</span><span class="p">,</span> <span class="s1">&#39;character&#39;</span><span class="p">),</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get tags for an image using IdolSankaku taggers.</span>
@@ -356,6 +374,7 @@
 <span class="sd">    :type drop_overlap: bool</span>
 <span class="sd">    :param fmt: Return format, default is ``(&#39;rating&#39;, &#39;general&#39;, &#39;character&#39;)``.</span>
 <span class="sd">        ``embedding`` is also supported for feature extraction.</span>
+<span class="sd">    :type fmt: Any</span>
 <span class="sd">    :return: Prediction result based on the provided fmt.</span>
 
 <span class="sd">    .. note::</span>
@@ -423,6 +442,102 @@
         <span class="n">drop_overlap</span><span class="o">=</span><span class="n">drop_overlap</span><span class="p">,</span>
         <span class="n">fmt</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span>
     <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="convert_idolsankaku_emb_to_prediction"><a class="viewcode-back" href="../../../api_doc/tagging/idolsankaku.html#realutils.tagging.idolsankaku.convert_idolsankaku_emb_to_prediction">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">convert_idolsankaku_emb_to_prediction</span><span class="p">(</span>
+        <span class="n">emb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_MODEL_NAME</span><span class="p">,</span>
+        <span class="n">general_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.35</span><span class="p">,</span>
+        <span class="n">general_mcut_enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">character_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.85</span><span class="p">,</span>
+        <span class="n">character_mcut_enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">no_underline</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">drop_overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">fmt</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;rating&#39;</span><span class="p">,</span> <span class="s1">&#39;general&#39;</span><span class="p">,</span> <span class="s1">&#39;character&#39;</span><span class="p">),</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert idolsankaku embedding to understandable prediction result. This function can process both</span>
+<span class="sd">    single embeddings (1-dimensional array) and batches of embeddings (2-dimensional array).</span>
+
+<span class="sd">    :param emb: The extracted embedding(s). Can be either a 1-dim array for single image or</span>
+<span class="sd">                2-dim array for batch processing</span>
+<span class="sd">    :type emb: numpy.ndarray</span>
+<span class="sd">    :param model_name: Name of the idolsankaku model to use for prediction</span>
+<span class="sd">    :type model_name: str</span>
+<span class="sd">    :param general_threshold: Confidence threshold for general tags (0.0 to 1.0)</span>
+<span class="sd">    :type general_threshold: float</span>
+<span class="sd">    :param general_mcut_enabled: Enable MCut thresholding for general tags to improve prediction quality</span>
+<span class="sd">    :type general_mcut_enabled: bool</span>
+<span class="sd">    :param character_threshold: Confidence threshold for character tags (0.0 to 1.0)</span>
+<span class="sd">    :type character_threshold: float</span>
+<span class="sd">    :param character_mcut_enabled: Enable MCut thresholding for character tags to improve prediction quality</span>
+<span class="sd">    :type character_mcut_enabled: bool</span>
+<span class="sd">    :param no_underline: Replace underscores with spaces in tag names for better readability</span>
+<span class="sd">    :type no_underline: bool</span>
+<span class="sd">    :param drop_overlap: Remove overlapping tags to reduce redundancy</span>
+<span class="sd">    :type drop_overlap: bool</span>
+<span class="sd">    :param fmt: Specify return format structure for predictions, default is ``(&#39;rating&#39;, &#39;general&#39;, &#39;character&#39;)``.</span>
+<span class="sd">    :type fmt: Any</span>
+<span class="sd">    :return: For single embeddings: prediction result based on fmt. For batches: list of prediction results.</span>
+
+<span class="sd">    For batch processing (2-dim input), returns a list where each element corresponds</span>
+<span class="sd">    to one embedding&#39;s predictions in the same format as single embedding output.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; import os</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; from realutils.tagging import get_idolsankaku_tags, convert_idolsankaku_emb_to_prediction</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # extract the feature embedding, shape: (W, )</span>
+<span class="sd">        &gt;&gt;&gt; embedding = get_idolsankaku_tags(&#39;skadi.jpg&#39;, fmt=&#39;embedding&#39;)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # convert to understandable result</span>
+<span class="sd">        &gt;&gt;&gt; rating, general, character = convert_idolsankaku_emb_to_prediction(embedding)</span>
+<span class="sd">        &gt;&gt;&gt; # these 3 dicts will be the same as that returned by `get_idolsankaku_tags(&#39;skadi.jpg&#39;)`</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # Batch processing, shape: (B, W)</span>
+<span class="sd">        &gt;&gt;&gt; embeddings = np.stack([</span>
+<span class="sd">        ...     get_idolsankaku_tags(&#39;img1.jpg&#39;, fmt=&#39;embedding&#39;),</span>
+<span class="sd">        ...     get_idolsankaku_tags(&#39;img2.jpg&#39;, fmt=&#39;embedding&#39;),</span>
+<span class="sd">        ... ])</span>
+<span class="sd">        &gt;&gt;&gt; # results will be a list of (rating, general, character) tuples</span>
+<span class="sd">        &gt;&gt;&gt; results = convert_idolsankaku_emb_to_prediction(embeddings)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">z_weights</span> <span class="o">=</span> <span class="n">_get_idolsankaku_weights</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+    <span class="n">weight</span><span class="p">,</span> <span class="n">bias</span> <span class="o">=</span> <span class="n">z_weights</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span> <span class="n">z_weights</span><span class="p">[</span><span class="s1">&#39;bias&#39;</span><span class="p">]</span>
+    <span class="n">logit</span> <span class="o">=</span> <span class="n">emb</span> <span class="o">@</span> <span class="n">weight</span> <span class="o">+</span> <span class="n">bias</span>
+    <span class="n">pred</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">logit</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">emb</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_postprocess_embedding</span><span class="p">(</span>
+            <span class="n">pred</span><span class="o">=</span><span class="n">pred</span><span class="p">,</span>
+            <span class="n">embedding</span><span class="o">=</span><span class="n">emb</span><span class="p">,</span>
+            <span class="n">logit</span><span class="o">=</span><span class="n">logit</span><span class="p">,</span>
+            <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+            <span class="n">general_threshold</span><span class="o">=</span><span class="n">general_threshold</span><span class="p">,</span>
+            <span class="n">general_mcut_enabled</span><span class="o">=</span><span class="n">general_mcut_enabled</span><span class="p">,</span>
+            <span class="n">character_threshold</span><span class="o">=</span><span class="n">character_threshold</span><span class="p">,</span>
+            <span class="n">character_mcut_enabled</span><span class="o">=</span><span class="n">character_mcut_enabled</span><span class="p">,</span>
+            <span class="n">no_underline</span><span class="o">=</span><span class="n">no_underline</span><span class="p">,</span>
+            <span class="n">drop_overlap</span><span class="o">=</span><span class="n">drop_overlap</span><span class="p">,</span>
+            <span class="n">fmt</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">_postprocess_embedding</span><span class="p">(</span>
+                <span class="n">pred</span><span class="o">=</span><span class="n">pred_item</span><span class="p">,</span>
+                <span class="n">embedding</span><span class="o">=</span><span class="n">emb_item</span><span class="p">,</span>
+                <span class="n">logit</span><span class="o">=</span><span class="n">logit_item</span><span class="p">,</span>
+                <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                <span class="n">general_threshold</span><span class="o">=</span><span class="n">general_threshold</span><span class="p">,</span>
+                <span class="n">general_mcut_enabled</span><span class="o">=</span><span class="n">general_mcut_enabled</span><span class="p">,</span>
+                <span class="n">character_threshold</span><span class="o">=</span><span class="n">character_threshold</span><span class="p">,</span>
+                <span class="n">character_mcut_enabled</span><span class="o">=</span><span class="n">character_mcut_enabled</span><span class="p">,</span>
+                <span class="n">no_underline</span><span class="o">=</span><span class="n">no_underline</span><span class="p">,</span>
+                <span class="n">drop_overlap</span><span class="o">=</span><span class="n">drop_overlap</span><span class="p">,</span>
+                <span class="n">fmt</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">pred_item</span><span class="p">,</span> <span class="n">emb_item</span><span class="p">,</span> <span class="n">logit_item</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">emb</span><span class="p">,</span> <span class="n">logit</span><span class="p">)</span>
+        <span class="p">]</span></div>
 </pre></div>
 
 
@@ -463,9 +578,8 @@
                 </dl>
                 <dl>
                     <dt>Branches</dt>
-                        <dd><a href="../../../../dev/tagger/index.html">dev/tagger</a></dd>
-                        <dd><a href="../../../../HEAD/index.html">HEAD</a></dd>
                         <dd><a href="idolsankaku.html">main</a></dd>
+                        <dd><a href="../../../../HEAD/index.html">HEAD</a></dd>
                 </dl>
         </div>
     </div><script>
