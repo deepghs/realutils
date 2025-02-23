@@ -184,7 +184,7 @@ def _postprocess_embedding(
         character_mcut_enabled: bool = False,
         no_underline: bool = False,
         drop_overlap: bool = False,
-        fmt=('rating', 'general', 'character'),
+        fmt: Any = ('rating', 'general', 'character'),
 ):
     """
     Post-process the embedding and prediction results.
@@ -210,6 +210,7 @@ def _postprocess_embedding(
     :param drop_overlap: Whether to drop overlapping tags.
     :type drop_overlap: bool
     :param fmt: The format of the output.
+    :type fmt: Any
     :return: The post-processed results.
     """
     assert len(pred.shape) == len(embedding.shape) == 1, \
@@ -420,8 +421,8 @@ def convert_idolsankaku_emb_to_prediction(
         >>> results = convert_idolsankaku_emb_to_prediction(embeddings)
     """
     z_weights = _get_idolsankaku_weights(model_name)
-    weights, bias = z_weights['weights'], z_weights['bias']
-    logit = emb @ weights + bias
+    weight, bias = z_weights['weight'], z_weights['bias']
+    logit = emb @ weight + bias
     pred = sigmoid(logit)
     if len(emb.shape) == 1:
         return _postprocess_embedding(
