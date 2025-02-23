@@ -1,6 +1,6 @@
 import pytest
 
-from realutils.tagging import get_idolsankaku_tags
+from realutils.tagging import get_idolsankaku_tags, convert_idolsankaku_emb_to_prediction
 from realutils.tagging.idolsankaku import _get_idolsankaku_labels, _get_idolsankaku_model
 from test.testings import get_testfile
 
@@ -499,6 +499,29 @@ class TestTaggingIdolsankaku:
         input_, (expected_rating, expected_general, expected_character) = all_mcut_fixes[sample_id]
         rating, general, character = \
             get_idolsankaku_tags(input_, character_mcut_enabled=True, general_mcut_enabled=True)
+        assert rating == pytest.approx(expected_rating, abs=1e-3)
+        assert general == pytest.approx(expected_general, abs=1e-3)
+        assert character == pytest.approx(expected_character, abs=1e-3)
+
+    @pytest.mark.parametrize(['sample_id'], [(sid,) for sid in range(1, 9)])
+    def test_convert_idolsankaku_emb_to_prediction(self, sample_id, all_fixes):
+        input_, _ = all_fixes[sample_id]
+        expected_rating, expected_general, expected_character, embedding = get_idolsankaku_tags(
+            input_, fmt=('rating', 'general', 'character', 'embedding'))
+        rating, general, character = convert_idolsankaku_emb_to_prediction(embedding)
+        assert rating == pytest.approx(expected_rating, abs=1e-3)
+        assert general == pytest.approx(expected_general, abs=1e-3)
+        assert character == pytest.approx(expected_character, abs=1e-3)
+
+    @pytest.mark.parametrize(['sample_id'], [(sid,) for sid in range(1, 9)])
+    def test_convert_idolsankaku_emb_to_prediction_lst(self, sample_id, all_fixes):
+        input_, _ = all_fixes[sample_id]
+        expected_rating, expected_general, expected_character, embedding = get_idolsankaku_tags(
+            input_, fmt=('rating', 'general', 'character', 'embedding'))
+        result = convert_idolsankaku_emb_to_prediction(embedding[None, ...])
+        assert isinstance(result, list)
+        assert len(result) == 1
+        rating, general, character = result[0]
         assert rating == pytest.approx(expected_rating, abs=1e-3)
         assert general == pytest.approx(expected_general, abs=1e-3)
         assert character == pytest.approx(expected_character, abs=1e-3)

@@ -114,6 +114,19 @@ def extract(export_dir: str, model_repo_id: str, pretrained: bool = True, seed: 
     logging.info(f'{ratio * 100:.2f}% of the logits value are the same.')
     assert close_matrix.all(), 'Not all values can match.'
 
+    matrix_data_file = os.path.join(export_dir, 'matrix.npz')
+    bias = classifier.bias.detach().numpy()
+    weight = classifier.weight.detach().numpy().T
+    logging.info(f'Saving matrix data file to {matrix_data_file!r}, '
+                 f'bias: {bias.dtype!r}{bias.shape!r}, weight: {weight.dtype!r}{weight.shape!r}.')
+    np.savez(
+        matrix_data_file,
+        bias=bias,
+        weight=weight,
+    )
+    expected_logits = conv_features.detach().numpy() @ weight + bias
+    np.testing.assert_allclose(conv_output.detach().numpy(), expected_logits, rtol=1e-03, atol=1e-05)
+
     logging.info('Profiling model ...')
     macs, params = profile(model, inputs=(dummy_input,))
     s_macs, s_params = clever_format([macs, params], "%.1f")
@@ -225,13 +238,13 @@ def sync(repository: str = 'deepghs/idolsankaku_tagger_with_embeddings'):
             logging.warn(f'Repo {model_repo_id!r} not exist, skipped.')
             continue
 
-        if hf_client.file_exists(
-                repo_id=repository,
-                repo_type='model',
-                filename=f'{model_repo_id}/model.onnx',
-        ):
-            logging.warn(f'Model {model_repo_id!r} already exported, skipped.')
-            continue
+        # if hf_client.file_exists(
+        #         repo_id=repository,
+        #         repo_type='model',
+        #         filename=f'{model_repo_id}/model.onnx',
+        # ):
+        #     logging.warn(f'Model {model_repo_id!r} already exported, skipped.')
+        #     continue
 
         with TemporaryDirectory() as upload_dir:
             logging.info(f'Exporting model {model_repo_id!r} ...')
@@ -275,6 +288,15 @@ def sync(repository: str = 'deepghs/idolsankaku_tagger_with_embeddings'):
 
                 print('Idolsankaku taggers with embeddings and logits output.', file=f)
                 print('', file=f)
+
+                print(f'# How To Use', file=f)
+                print(f'', file=f)
+                print(f'You can use these embedding-supported models with '
+                      f'[dghs-realutils](https://github.com/deepghs/realutils) library, '
+                      f'see [documentation of realutils.tagging.idolsankaku]'
+                      f'(https://dghs-realutils.deepghs.org/main/api_doc/tagging/idolsankaku.html) '
+                      f'for more information.', file=f)
+                print(f'', file=f)
 
                 print(f'# Models', file=f)
                 print(f'', file=f)
