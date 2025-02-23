@@ -289,6 +289,15 @@ def sync(repository: str = 'deepghs/idolsankaku_tagger_with_embeddings'):
                 print('Idolsankaku taggers with embeddings and logits output.', file=f)
                 print('', file=f)
 
+                print(f'# How To Use', file=f)
+                print(f'', file=f)
+                print(f'You can use these embedding-supported models with '
+                      f'[dghs-realutils](https://github.com/deepghs/realutils) library, '
+                      f'see [documentation of realutils.tagging.idolsankaku]'
+                      f'(https://dghs-realutils.deepghs.org/main/api_doc/tagging/idolsankaku.html) '
+                      f'for more information.', file=f)
+                print(f'', file=f)
+
                 print(f'# Models', file=f)
                 print(f'', file=f)
 
