@@ -213,11 +213,6 @@ single embeddings (1-dimensional array) and batches of embeddings (2-dimensional
 <dd class="field-even"><p>For single embeddings: prediction result based on fmt. For batches: list of prediction results.</p>
 </dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Only the embeddings not get normalized can be converted to understandable prediction result.
-If normalized embeddings are provided, set <code class="docutils literal notranslate"><span class="pre">denormalize=True</span></code> to convert them back.</p>
-</div>
 <p>For batch processing (2-dim input), returns a list where each element corresponds
 to one embedding’s predictions in the same format as single embedding output.</p>
 <dl>
