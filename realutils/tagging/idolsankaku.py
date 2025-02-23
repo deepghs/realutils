@@ -393,10 +393,6 @@ def convert_idolsankaku_emb_to_prediction(
     :type fmt: Any
     :return: For single embeddings: prediction result based on fmt. For batches: list of prediction results.
 
-    .. note::
-        Only the embeddings not get normalized can be converted to understandable prediction result.
-        If normalized embeddings are provided, set ``denormalize=True`` to convert them back.
-
     For batch processing (2-dim input), returns a list where each element corresponds
     to one embedding's predictions in the same format as single embedding output.
 
