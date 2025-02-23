@@ -16,7 +16,7 @@ Overview:
     .. image:: idolsankaku_benchmark.plot.py.svg
         :align: center
 """
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 import numpy as np
 import onnxruntime
@@ -27,7 +27,7 @@ from huggingface_hub import hf_hub_download
 from imgutils.data import load_image, ImageTyping
 from imgutils.tagging.format import remove_underline
 from imgutils.tagging.overlap import drop_overlap_tags
-from imgutils.utils import open_onnx_model, vreplace, ts_lru_cache
+from imgutils.utils import open_onnx_model, vreplace, ts_lru_cache, sigmoid
 
 EXP_REPO = 'deepghs/idolsankaku_tagger_with_embeddings'
 EVA02_LARGE_MODEL_DSV3_REPO = "deepghs/idolsankaku-eva02-large-tagger-v1"
@@ -103,6 +103,23 @@ def _get_idolsankaku_labels(model_name, no_underline: bool = False) -> Tuple[
     general_indexes = list(np.where(df["category"] == 0)[0])
     character_indexes = list(np.where(df["category"] == 4)[0])
     return tag_names, rating_indexes, general_indexes, character_indexes
+
+
+@ts_lru_cache()
+def _get_idolsankaku_weights(model_name):
+    """
+    Load the weights for a idolsankaku model.
+
+    :param model_name: The name of the model.
+    :type model_name: str
+    :return: The loaded weights.
+    :rtype: numpy.ndarray
+    """
+    _version_support_check(model_name)
+    return np.load(hf_hub_download(
+        repo_id=EXP_REPO,
+        filename=f'{MODEL_NAMES[model_name]}/matrix.npz',
+    ))
 
 
 def _mcut_threshold(probs) -> float:
@@ -243,7 +260,7 @@ def get_idolsankaku_tags(
         character_mcut_enabled: bool = False,
         no_underline: bool = False,
         drop_overlap: bool = False,
-        fmt=('rating', 'general', 'character'),
+        fmt: Any = ('rating', 'general', 'character'),
 ):
     """
     Get tags for an image using IdolSankaku taggers.
@@ -269,6 +286,7 @@ def get_idolsankaku_tags(
     :type drop_overlap: bool
     :param fmt: Return format, default is ``('rating', 'general', 'character')``.
         ``embedding`` is also supported for feature extraction.
+    :type fmt: Any
     :return: Prediction result based on the provided fmt.
 
     .. note::
@@ -336,3 +354,103 @@ def get_idolsankaku_tags(
         drop_overlap=drop_overlap,
         fmt=fmt,
     )
+
+
+def convert_idolsankaku_emb_to_prediction(
+        emb: np.ndarray,
+        model_name: str = _DEFAULT_MODEL_NAME,
+        general_threshold: float = 0.35,
+        general_mcut_enabled: bool = False,
+        character_threshold: float = 0.85,
+        character_mcut_enabled: bool = False,
+        no_underline: bool = False,
+        drop_overlap: bool = False,
+        fmt: Any = ('rating', 'general', 'character'),
+):
+    """
+    Convert idolsankaku embedding to understandable prediction result. This function can process both
+    single embeddings (1-dimensional array) and batches of embeddings (2-dimensional array).
+
+    :param emb: The extracted embedding(s). Can be either a 1-dim array for single image or
+                2-dim array for batch processing
+    :type emb: numpy.ndarray
+    :param model_name: Name of the idolsankaku model to use for prediction
+    :type model_name: str
+    :param general_threshold: Confidence threshold for general tags (0.0 to 1.0)
+    :type general_threshold: float
+    :param general_mcut_enabled: Enable MCut thresholding for general tags to improve prediction quality
+    :type general_mcut_enabled: bool
+    :param character_threshold: Confidence threshold for character tags (0.0 to 1.0)
+    :type character_threshold: float
+    :param character_mcut_enabled: Enable MCut thresholding for character tags to improve prediction quality
+    :type character_mcut_enabled: bool
+    :param no_underline: Replace underscores with spaces in tag names for better readability
+    :type no_underline: bool
+    :param drop_overlap: Remove overlapping tags to reduce redundancy
+    :type drop_overlap: bool
+    :param fmt: Specify return format structure for predictions, default is ``('rating', 'general', 'character')``.
+    :type fmt: Any
+    :return: For single embeddings: prediction result based on fmt. For batches: list of prediction results.
+
+    .. note::
+        Only the embeddings not get normalized can be converted to understandable prediction result.
+        If normalized embeddings are provided, set ``denormalize=True`` to convert them back.
+
+    For batch processing (2-dim input), returns a list where each element corresponds
+    to one embedding's predictions in the same format as single embedding output.
+
+    Example:
+        >>> import os
+        >>> import numpy as np
+        >>> from realutils.tagging import get_idolsankaku_tags, convert_idolsankaku_emb_to_prediction
+        >>>
+        >>> # extract the feature embedding, shape: (W, )
+        >>> embedding = get_idolsankaku_tags('skadi.jpg', fmt='embedding')
+        >>>
+        >>> # convert to understandable result
+        >>> rating, general, character = convert_idolsankaku_emb_to_prediction(embedding)
+        >>> # these 3 dicts will be the same as that returned by `get_idolsankaku_tags('skadi.jpg')`
+        >>>
+        >>> # Batch processing, shape: (B, W)
+        >>> embeddings = np.stack([
+        ...     get_idolsankaku_tags('img1.jpg', fmt='embedding'),
+        ...     get_idolsankaku_tags('img2.jpg', fmt='embedding'),
+        ... ])
+        >>> # results will be a list of (rating, general, character) tuples
+        >>> results = convert_idolsankaku_emb_to_prediction(embeddings)
+    """
+    z_weights = _get_idolsankaku_weights(model_name)
+    weights, bias = z_weights['weights'], z_weights['bias']
+    logit = emb @ weights + bias
+    pred = sigmoid(logit)
+    if len(emb.shape) == 1:
+        return _postprocess_embedding(
+            pred=pred,
+            embedding=emb,
+            logit=logit,
+            model_name=model_name,
+            general_threshold=general_threshold,
+            general_mcut_enabled=general_mcut_enabled,
+            character_threshold=character_threshold,
+            character_mcut_enabled=character_mcut_enabled,
+            no_underline=no_underline,
+            drop_overlap=drop_overlap,
+            fmt=fmt,
+        )
+    else:
+        return [
+            _postprocess_embedding(
+                pred=pred_item,
+                embedding=emb_item,
+                logit=logit_item,
+                model_name=model_name,
+                general_threshold=general_threshold,
+                general_mcut_enabled=general_mcut_enabled,
+                character_threshold=character_threshold,
+                character_mcut_enabled=character_mcut_enabled,
+                no_underline=no_underline,
+                drop_overlap=drop_overlap,
+                fmt=fmt,
+            )
+            for pred_item, emb_item, logit_item in zip(pred, emb, logit)
+        ]

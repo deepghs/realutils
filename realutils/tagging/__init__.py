@@ -1,1 +1,1 @@
-from .idolsankaku import get_idolsankaku_tags
+from .idolsankaku import get_idolsankaku_tags, convert_idolsankaku_emb_to_prediction
