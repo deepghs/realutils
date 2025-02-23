@@ -236,13 +236,13 @@ def sync(repository: str = 'deepghs/idolsankaku_tagger_with_embeddings'):
             logging.warn(f'Repo {model_repo_id!r} not exist, skipped.')
             continue
 
-        if hf_client.file_exists(
-                repo_id=repository,
-                repo_type='model',
-                filename=f'{model_repo_id}/model.onnx',
-        ):
-            logging.warn(f'Model {model_repo_id!r} already exported, skipped.')
-            continue
+        # if hf_client.file_exists(
+        #         repo_id=repository,
+        #         repo_type='model',
+        #         filename=f'{model_repo_id}/model.onnx',
+        # ):
+        #     logging.warn(f'Model {model_repo_id!r} already exported, skipped.')
+        #     continue
 
         with TemporaryDirectory() as upload_dir:
             logging.info(f'Exporting model {model_repo_id!r} ...')
