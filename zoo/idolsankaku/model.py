@@ -102,8 +102,8 @@ def extract(export_dir: str, model_repo_id: str, pretrained: bool = True, seed: 
     logging.info(f'Classifier module found at {classifier_position!r}:\n{classifier}')
 
     matrix_data_file = os.path.join(export_dir, 'matrix.npz')
-    bias = classifier.bias.numpy()
-    weight = classifier.weight.numpy().T
+    bias = classifier.bias.detach().numpy()
+    weight = classifier.weight.detach().numpy().T
     logging.info(f'Saving matrix data file to {matrix_data_file!r}, '
                  f'bias: {bias.dtype!r}{bias.shape!r}, weight: {weight.dtype!r}{weight.shape!r}.')
     np.savez(
