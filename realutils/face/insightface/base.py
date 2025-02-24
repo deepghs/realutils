@@ -7,7 +7,6 @@ and provides utility methods for working with detection results.
 :const _REPO_ID: The default Hugging Face repository ID for the face detection model
 :const _DEFAULT_MODEL: The default model name to use for face detection
 """
-
 from dataclasses import dataclass
 from typing import Tuple, List, Literal, Optional
 
@@ -76,7 +75,32 @@ class Face:
         return self.bbox, label, self.det_score
 
 
-def transform(data, center, output_size, scale, rotation):
+def _affine_transform(data: np.ndarray, center: Tuple[float, float], output_size: int, scale: float, rotation: float):
+    """
+    Apply geometric transformation to an image for face alignment.
+
+    This function performs a series of geometric transformations including scaling,
+    rotation, and translation to align a face image to a standardized position and size.
+
+    :param data: Input image array
+    :type data: numpy.ndarray
+    :param center: Center point of the transformation (x, y)
+    :type center: Tuple[float, float]
+    :param output_size: Size of the output image (width=height)
+    :type output_size: int
+    :param scale: Scaling factor for the transformation
+    :type scale: float
+    :param rotation: Rotation angle in degrees
+    :type rotation: float
+
+    :return: A tuple containing the transformed image and transformation parameters
+    :rtype: Tuple[numpy.ndarray, numpy.ndarray]
+
+    :example:
+        >>> import numpy as np
+        >>> img = np.zeros((100, 100, 3))
+        >>> transformed_img, params = _affine_transform(img, (50, 50), 112, 1.0, 0)
+    """
     scale_ratio = scale
     rot = float(rotation) * np.pi / 180.0
     t1 = SimilarityTransform(scale=scale_ratio)
@@ -87,7 +111,7 @@ def transform(data, center, output_size, scale, rotation):
     t4 = SimilarityTransform(translation=(output_size / 2,
                                           output_size / 2))
     t = t1 + t2 + t3 + t4
-    M = t.params[0:2]
+    mparams = t.params[0:2]
     # noinspection PyTypeChecker
-    cropped = cv2.warpAffine(data, M, (output_size, output_size), borderValue=0.0)
-    return cropped, M
+    cropped = cv2.warpAffine(data, mparams, (output_size, output_size), borderValue=0.0)
+    return cropped, mparams
