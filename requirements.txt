@@ -17,3 +17,4 @@ dghs-imgutils>=0.11.0
 tokenizers>=0.20.0; python_version >= '3.9'
 tokenizers>=0.20.0,<0.21; python_version < '3.9'
 shapely!=2.0.7
+scikit-image>=0.21
