@@ -1,8 +1,20 @@
 import pytest
+from hbutils.testing import tmatrix
 from imgutils.detect import detection_similarity
 
 from realutils.face.insightface import isf_detect_faces
+from realutils.face.insightface.detect import _open_det_model, _open_ref_info, _get_center_from_cache
 from test.testings import get_testfile
+
+
+@pytest.fixture(scope='module', autouse=True)
+def _release_model_after_run():
+    try:
+        yield
+    finally:
+        _open_ref_info.cache_clear()
+        _open_det_model.cache_clear()
+        _get_center_from_cache.cache_clear()
 
 
 @pytest.fixture()
@@ -96,15 +108,13 @@ def det_tuples(isf_file_multiple, det_file_multiple, isf_file_2girls, det_file_2
 
 @pytest.mark.unittest
 class TestFaceInsightfaceDetect:
-    @pytest.mark.parametrize(['sample_name'], [
-        ('multiple',),
-        ('2girls',),
-        ('solo',),
-        ('3_cosplay',),
-    ])
-    def test_isf_detect_faces(self, sample_name, det_tuples):
+    @pytest.mark.parametrize(*tmatrix({
+        'sample_name': ['multiple', '2girls', 'solo', '3_cosplay'],
+        'model_name': ['buffalo_s', 'buffalo_l'],
+    }))
+    def test_isf_detect_faces(self, sample_name, det_tuples, model_name):
         image_file, expected_detection = det_tuples[sample_name]
-        faces = isf_detect_faces(image_file)
+        faces = isf_detect_faces(image_file, model_name=model_name)
         assert detection_similarity(
             [face.to_det_tuple() for face in faces],
             expected_detection,
