@@ -21,3 +21,12 @@ isf_detect_faces
 
 
 
+isf_faces_visualize
+--------------------------------------------
+
+.. autofunction:: isf_faces_visualize
+
+
+
+
+

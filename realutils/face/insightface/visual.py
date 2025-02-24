@@ -1,3 +1,8 @@
+"""
+This module provides functionality for visualizing face detection results on images.
+It includes utilities for drawing bounding boxes, keypoints, and labels on detected faces.
+The visualization can be customized with different colors, font sizes, and display options.
+"""
 import math
 from typing import List, Optional
 
@@ -13,15 +18,29 @@ def isf_faces_visualize(image: ImageTyping, faces: List[Face], text_padding: int
                         keypoint_size: int = 12, box_color: str = '#ff00ee', max_short_edge_size: Optional[int] = None,
                         fp=None, no_label: bool = False):
     """
-    Visualize object detection results by drawing bounding boxes and labels on an image.
+    Visualize face detection results by drawing bounding boxes, keypoints and labels on an image.
+
+    This function takes an input image and a list of detected faces, then draws:
+
+    - Bounding boxes around each detected face
+    - Keypoints for facial features using randomly generated colors
+    - Optional labels showing detection confidence scores
+
+    The visualization can be customized through various parameters like font size,
+    box colors, and whether to show labels.
 
     :param image: Input image to visualize detections on. Can be a PIL Image, numpy array, or path to image file.
     :type image: ImageTyping
-
+    :param faces: List of detected Face objects containing bounding boxes, keypoints and scores.
+    :type faces: List[Face]
     :param text_padding: Padding around label text in pixels.
     :type text_padding: int
     :param fontsize: Font size for label text.
     :type fontsize: int
+    :param keypoint_size: Size of keypoint markers in pixels.
+    :type keypoint_size: int
+    :param box_color: Color of bounding box in hex format (e.g. '#ff00ee').
+    :type box_color: str
     :param max_short_edge_size: Maximum size of shortest image edge. If specified, image will be resized
         while maintaining aspect ratio.
     :type max_short_edge_size: Optional[int]
@@ -33,6 +52,19 @@ def isf_faces_visualize(image: ImageTyping, faces: List[Face], text_padding: int
     :return: PIL Image with visualized detection results.
     :rtype: PIL.Image.Image
 
+    :example:
+        >>> from realutils.face.insightface import isf_faces_visualize, isf_detect_faces
+        >>> from PIL import Image
+        >>>
+        >>> image = Image.open('face.jpg')
+        >>> faces = isf_detect_faces(image)
+        >>> visualized = isf_faces_visualize(
+        ...     image,
+        ...     faces,
+        ...     fontsize=14,
+        ...     box_color='#00ff00'
+        ... )
+        >>> visualized.show()
     """
     image = load_image(image, force_background=None, mode='RGBA')
     original_width, original_height = image.width, image.height
