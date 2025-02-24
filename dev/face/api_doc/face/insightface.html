@@ -67,6 +67,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#realutils.face.insightface.isf_detect_faces"><code class="docutils literal notranslate"><span class="pre">isf_detect_faces()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#isf-faces-visualize">isf_faces_visualize</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#realutils.face.insightface.isf_faces_visualize"><code class="docutils literal notranslate"><span class="pre">isf_faces_visualize()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -189,6 +193,61 @@ used with general object detection frameworks or visualization tools.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">faces</span> <span class="o">=</span> <span class="n">isf_detect_faces</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Face </span><span class="si">{</span><span class="n">face</span><span class="o">.</span><span class="n">bbox</span><span class="si">!r}</span><span class="s2"> detected with confidence: </span><span class="si">{</span><span class="n">face</span><span class="o">.</span><span class="n">det_score</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="isf-faces-visualize">
+<h2>isf_faces_visualize<a class="headerlink" href="#isf-faces-visualize" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="realutils.face.insightface.isf_faces_visualize">
+<span class="sig-prename descclassname"><span class="pre">realutils.face.insightface.</span></span><span class="sig-name descname"><span class="pre">isf_faces_visualize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BinaryIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faces</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#realutils.face.insightface.Face" title="realutils.face.insightface.base.Face"><span class="pre">Face</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_padding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keypoint_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'#ff00ee'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_short_edge_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/realutils/face/insightface/visual.html#isf_faces_visualize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#realutils.face.insightface.isf_faces_visualize" title="Permalink to this definition"></a></dt>
+<dd><p>Visualize face detection results by drawing bounding boxes, keypoints and labels on an image.</p>
+<p>This function takes an input image and a list of detected faces, then draws:</p>
+<ul class="simple">
+<li><p>Bounding boxes around each detected face</p></li>
+<li><p>Keypoints for facial features using randomly generated colors</p></li>
+<li><p>Optional labels showing detection confidence scores</p></li>
+</ul>
+<p>The visualization can be customized through various parameters like font size,
+box colors, and whether to show labels.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ImageTyping</em>) – Input image to visualize detections on. Can be a PIL Image, numpy array, or path to image file.</p></li>
+<li><p><strong>faces</strong> (<em>List</em><em>[</em><a class="reference internal" href="#realutils.face.insightface.Face" title="realutils.face.insightface.Face"><em>Face</em></a><em>]</em>) – List of detected Face objects containing bounding boxes, keypoints and scores.</p></li>
+<li><p><strong>text_padding</strong> (<em>int</em>) – Padding around label text in pixels.</p></li>
+<li><p><strong>fontsize</strong> (<em>int</em>) – Font size for label text.</p></li>
+<li><p><strong>keypoint_size</strong> (<em>int</em>) – Size of keypoint markers in pixels.</p></li>
+<li><p><strong>box_color</strong> (<em>str</em>) – Color of bounding box in hex format (e.g. ‘#ff00ee’).</p></li>
+<li><p><strong>max_short_edge_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – Maximum size of shortest image edge. If specified, image will be resized
+while maintaining aspect ratio.</p></li>
+<li><p><strong>fp</strong> (<em>matplotlib.font_manager.FontProperties</em><em> or </em><em>None</em>) – Font properties for matplotlib font. Only used if matplotlib is available.</p></li>
+<li><p><strong>no_label</strong> (<em>bool</em>) – If True, suppresses drawing of labels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PIL Image with visualized detection results.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PIL.Image.Image</p>
+</dd>
+<dt class="field-even">Example<span class="colon">:</span></dt>
+<dd class="field-even"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">realutils.face.insightface</span><span class="w"> </span><span class="kn">import</span> <span class="n">isf_faces_visualize</span><span class="p">,</span> <span class="n">isf_detect_faces</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;face.jpg&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">faces</span> <span class="o">=</span> <span class="n">isf_detect_faces</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">visualized</span> <span class="o">=</span> <span class="n">isf_faces_visualize</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">image</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">faces</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">box_color</span><span class="o">=</span><span class="s1">&#39;#00ff00&#39;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">visualized</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </dd>
