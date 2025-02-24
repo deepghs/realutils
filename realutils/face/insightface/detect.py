@@ -1,3 +1,11 @@
+"""
+Face detection module based on RetinaFace.
+
+This module provides functionality for detecting faces in images using the RetinaFace model.
+It includes utilities for processing images, detecting faces, and handling keypoints.
+The implementation supports different model sizes and configurations through Hugging Face's model hub.
+"""
+
 # -*- coding: utf-8 -*-
 from __future__ import division
 
@@ -15,6 +23,14 @@ from .base import _REPO_ID, _DEFAULT_MODEL, Face
 
 @ts_lru_cache()
 def _open_ref_info(model_name: str):
+    """
+    Load reference information for the specified model from JSON file.
+
+    :param model_name: Name of the model to load reference information for
+    :type model_name: str
+    :return: Dictionary containing model reference information
+    :rtype: dict
+    """
     with open(hf_hub_download(
             repo_id=_REPO_ID,
             repo_type='model',
@@ -25,6 +41,14 @@ def _open_ref_info(model_name: str):
 
 @ts_lru_cache()
 def _open_det_model(model_name: str):
+    """
+    Load and initialize the detection model.
+
+    :param model_name: Name of the model to load
+    :type model_name: str
+    :return: Tuple of (model session, input name, output names)
+    :rtype: tuple
+    """
     model_filename = _open_ref_info(model_name)['det']
     session = open_onnx_model(hf_hub_download(
         repo_id=_REPO_ID,
@@ -38,6 +62,16 @@ def _open_det_model(model_name: str):
 
 
 def distance2bbox(points, distance):
+    """
+    Convert distance predictions to bounding box coordinates.
+
+    :param points: Center points of anchors
+    :type points: numpy.ndarray
+    :param distance: Distance predictions from model
+    :type distance: numpy.ndarray
+    :return: Bounding box coordinates (x1, y1, x2, y2)
+    :rtype: numpy.ndarray
+    """
     x1 = points[:, 0] - distance[:, 0]
     y1 = points[:, 1] - distance[:, 1]
     x2 = points[:, 0] + distance[:, 2]
@@ -46,6 +80,16 @@ def distance2bbox(points, distance):
 
 
 def distance2kps(points, distance):
+    """
+    Convert distance predictions to keypoint coordinates.
+
+    :param points: Center points of anchors
+    :type points: numpy.ndarray
+    :param distance: Distance predictions for keypoints
+    :type distance: numpy.ndarray
+    :return: Keypoint coordinates
+    :rtype: numpy.ndarray
+    """
     preds = []
     for idx in range(0, distance.shape[1], 2):
         px = points[:, idx % 2] + distance[:, idx]
@@ -55,6 +99,16 @@ def distance2kps(points, distance):
 
 
 def nms(dets, nms_thresh: float = 0.4):
+    """
+    Perform non-maximum suppression on detection results.
+
+    :param dets: Detection results including scores
+    :type dets: numpy.ndarray
+    :param nms_thresh: NMS threshold
+    :type nms_thresh: float
+    :return: Indices of kept detections
+    :rtype: list
+    """
     x1, y1, x2, y2, scores = dets.T
     areas = (x2 - x1 + 1) * (y2 - y1 + 1)
     order = scores.argsort()[::-1]
@@ -85,6 +139,14 @@ _NUM_ANCHORS = 2
 
 @ts_lru_cache()
 def _get_center_from_cache(key):
+    """
+    Get anchor centers from cache or compute if not cached.
+
+    :param key: Tuple of (height, width, stride)
+    :type key: tuple
+    :return: Computed anchor centers
+    :rtype: numpy.ndarray
+    """
     height, width, stride = key
     anchor_centers = np.stack(np.mgrid[:height, :width][::-1], axis=-1).astype(np.float32) * stride
     anchor_centers = anchor_centers.reshape(-1, 2)
@@ -94,6 +156,18 @@ def _get_center_from_cache(key):
 
 
 def _det_inference(img_data: np.ndarray, threshold: float, model_name: str = _DEFAULT_MODEL):
+    """
+    Perform face detection inference on image data.
+
+    :param img_data: Input image data
+    :type img_data: numpy.ndarray
+    :param threshold: Detection confidence threshold
+    :type threshold: float
+    :param model_name: Name of the model to use
+    :type model_name: str
+    :return: Tuple of (scores_list, bboxes_list, kpss_list)
+    :rtype: tuple
+    """
     session, input_name, output_names = _open_det_model(model_name=model_name)
     blob = (np.array(img_data, dtype=np.float32) - 127.5) / 128.0
     blob = blob.transpose(2, 0, 1)[np.newaxis, ...]
@@ -123,6 +197,31 @@ def _det_inference(img_data: np.ndarray, threshold: float, model_name: str = _DE
 def isf_detect_faces(image: ImageTyping, model_name: str = _DEFAULT_MODEL,
                      input_size: Tuple[int, int] = (640, 640),
                      det_thresh: float = 0.5, nms_thresh: float = 0.4) -> List[Face]:
+    """
+    Detect faces in the given image using RetinaFace model.
+
+    :param image: Input image (can be path, PIL Image, or numpy array)
+    :type image: Union[str, PIL.Image.Image, numpy.ndarray]
+    :param model_name: Name of the detection model to use
+    :type model_name: str
+    :param input_size: Model input size (width, height)
+    :type input_size: tuple
+    :param det_thresh: Detection confidence threshold
+    :type det_thresh: float
+    :param nms_thresh: Non-maximum suppression threshold
+    :type nms_thresh: float
+    :return: List of detected faces with bounding boxes and keypoints
+    :rtype: List[Face]
+
+    :example:
+        >>> from realutils.face.insightface import isf_detect_faces
+        >>> from PIL import Image
+        >>>
+        >>> img = Image.open('path/to/image.jpg')
+        >>> faces = isf_detect_faces(img)
+        >>> for face in faces:
+        ...     print(f"Face {face.bbox!r} detected with confidence: {face.det_score}")
+    """
     pil_img = load_image(image, force_background='white', mode='RGB')
     im_ratio = pil_img.height / pil_img.width
     model_ratio = input_size[1] / input_size[0]
