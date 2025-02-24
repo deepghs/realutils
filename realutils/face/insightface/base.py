@@ -11,8 +11,13 @@ and provides utility methods for working with detection results.
 from dataclasses import dataclass
 from typing import Tuple, List, Literal, Optional
 
+import cv2
+import numpy as np
+from skimage.transform import SimilarityTransform
+
 _REPO_ID = 'deepghs/insightface'
 _DEFAULT_MODEL = 'buffalo_l'
+_GENDER_NAMES = {'M': 'male', 'F': 'female'}
 
 
 @dataclass
@@ -64,4 +69,25 @@ class Face:
             >>> face = Face(bbox=(100, 200, 300, 400), det_score=0.99, keypoints=[])
             >>> bbox, label, score = face.to_det_tuple()
         """
-        return self.bbox, 'face', self.det_score
+        if self.gender is not None and self.age is not None:
+            label = f'{_GENDER_NAMES[self.gender].capitalize()} (Age: {self.age})'
+        else:
+            label = 'face'
+        return self.bbox, label, self.det_score
+
+
+def transform(data, center, output_size, scale, rotation):
+    scale_ratio = scale
+    rot = float(rotation) * np.pi / 180.0
+    t1 = SimilarityTransform(scale=scale_ratio)
+    cx = center[0] * scale_ratio
+    cy = center[1] * scale_ratio
+    t2 = SimilarityTransform(translation=(-1 * cx, -1 * cy))
+    t3 = SimilarityTransform(rotation=rot)
+    t4 = SimilarityTransform(translation=(output_size / 2,
+                                          output_size / 2))
+    t = t1 + t2 + t3 + t4
+    M = t.params[0:2]
+    # noinspection PyTypeChecker
+    cropped = cv2.warpAffine(data, M, (output_size, output_size), borderValue=0.0)
+    return cropped, M
