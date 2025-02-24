@@ -37,27 +37,19 @@ def _open_det_model(model_name: str):
     return session, input_name, output_names
 
 
-def distance2bbox(points, distance, max_shape=None):
+def distance2bbox(points, distance):
     x1 = points[:, 0] - distance[:, 0]
     y1 = points[:, 1] - distance[:, 1]
     x2 = points[:, 0] + distance[:, 2]
     y2 = points[:, 1] + distance[:, 3]
-    if max_shape is not None:
-        x1 = np.clip(x1, 0, max_shape[1])
-        y1 = np.clip(y1, 0, max_shape[0])
-        x2 = np.clip(x2, 0, max_shape[1])
-        y2 = np.clip(y2, 0, max_shape[0])
     return np.stack([x1, y1, x2, y2], axis=-1)
 
 
-def distance2kps(points, distance, max_shape=None):
+def distance2kps(points, distance):
     preds = []
     for idx in range(0, distance.shape[1], 2):
         px = points[:, idx % 2] + distance[:, idx]
         py = points[:, (idx % 2) + 1] + distance[:, idx + 1]
-        if max_shape is not None:
-            px = np.clip(px, 0, max_shape[1])
-            py = np.clip(py, 0, max_shape[0])
         preds.extend([px, py])
     return np.stack(preds, axis=-1)
 
@@ -128,9 +120,9 @@ def _det_inference(img_data: np.ndarray, threshold: float, model_name: str = _DE
     return scores_list, bboxes_list, kpss_list
 
 
-def detect_faces_with_insightface(image: ImageTyping, model_name: str = _DEFAULT_MODEL,
-                                  input_size: Tuple[int, int] = (640, 640),
-                                  det_thresh: float = 0.5, nms_thresh: float = 0.4) -> List[Face]:
+def isf_detect_faces(image: ImageTyping, model_name: str = _DEFAULT_MODEL,
+                     input_size: Tuple[int, int] = (640, 640),
+                     det_thresh: float = 0.5, nms_thresh: float = 0.4) -> List[Face]:
     pil_img = load_image(image, force_background='white', mode='RGB')
     im_ratio = pil_img.height / pil_img.width
     model_ratio = input_size[1] / input_size[0]
