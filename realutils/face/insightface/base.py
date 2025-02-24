@@ -53,6 +53,7 @@ class Face:
     keypoints: List[Tuple[float, float]]
     gender: Optional[Literal['F', 'M']] = None
     age: Optional[int] = None
+    embedding: Optional[np.ndarray] = None
 
     def to_det_tuple(self) -> Tuple[Tuple[float, float, float, float], str, float]:
         """
