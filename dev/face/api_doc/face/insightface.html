@@ -67,6 +67,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#realutils.face.insightface.isf_detect_faces"><code class="docutils literal notranslate"><span class="pre">isf_detect_faces()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#isf-genderage">isf_genderage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#realutils.face.insightface.isf_genderage"><code class="docutils literal notranslate"><span class="pre">isf_genderage()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#isf-faces-visualize">isf_faces_visualize</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#realutils.face.insightface.isf_faces_visualize"><code class="docutils literal notranslate"><span class="pre">isf_faces_visualize()</span></code></a></li>
 </ul>
@@ -195,6 +199,33 @@ used with general object detection frameworks or visualization tools.</p>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Face </span><span class="si">{</span><span class="n">face</span><span class="o">.</span><span class="n">bbox</span><span class="si">!r}</span><span class="s2"> detected with confidence: </span><span class="si">{</span><span class="n">face</span><span class="o">.</span><span class="n">det_score</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="isf-genderage">
+<h2>isf_genderage<a class="headerlink" href="#isf-genderage" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="realutils.face.insightface.isf_genderage">
+<span class="sig-prename descclassname"><span class="pre">realutils.face.insightface.</span></span><span class="sig-name descname"><span class="pre">isf_genderage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BinaryIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">face</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#realutils.face.insightface.Face" title="realutils.face.insightface.base.Face"><span class="pre">Face</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'buffalo_l'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_write</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/realutils/face/insightface/genderage.html#isf_genderage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#realutils.face.insightface.isf_genderage" title="Permalink to this definition"></a></dt>
+<dd><p>Detect gender and age from a facial image.</p>
+<p>This function performs gender and age detection on a given face in an image. It can work with
+either a Face object or raw bounding box coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ImageTyping</em>) – Input image (can be path, URL, PIL Image, or numpy array)</p></li>
+<li><p><strong>face</strong> (<em>Union</em><em>[</em><a class="reference internal" href="#realutils.face.insightface.Face" title="realutils.face.insightface.Face"><em>Face</em></a><em>, </em><em>Tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>]</em><em>]</em>) – Face object or bounding box coordinates (x1, y1, x2, y2)</p></li>
+<li><p><strong>model_name</strong> (<em>str</em>) – Name of the model to use for detection, defaults to _DEFAULT_MODEL</p></li>
+<li><p><strong>no_write</strong> (<em>bool</em>) – If True, don’t update the Face object with results (if face is Face object)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple of (gender, age) where gender is ‘F’ or ‘M’ and age is an integer</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[str, int]</p>
 </dd>
 </dl>
 </dd></dl>

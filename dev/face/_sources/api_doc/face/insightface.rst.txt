@@ -21,12 +21,17 @@ isf_detect_faces
 
 
 
+isf_genderage
+--------------------------------------------
+
+.. autofunction:: isf_genderage
+
+
+
 isf_faces_visualize
 --------------------------------------------
 
 .. autofunction:: isf_faces_visualize
-
-
 
 
 

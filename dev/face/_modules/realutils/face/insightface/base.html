@@ -95,12 +95,16 @@
 <span class="sd">:const _REPO_ID: The default Hugging Face repository ID for the face detection model</span>
 <span class="sd">:const _DEFAULT_MODEL: The default model name to use for face detection</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">skimage.transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimilarityTransform</span>
+
 <span class="n">_REPO_ID</span> <span class="o">=</span> <span class="s1">&#39;deepghs/insightface&#39;</span>
 <span class="n">_DEFAULT_MODEL</span> <span class="o">=</span> <span class="s1">&#39;buffalo_l&#39;</span>
+<span class="n">_GENDER_NAMES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;M&#39;</span><span class="p">:</span> <span class="s1">&#39;male&#39;</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">:</span> <span class="s1">&#39;female&#39;</span><span class="p">}</span>
 
 
 <div class="viewcode-block" id="Face"><a class="viewcode-back" href="../../../../api_doc/face/insightface.html#realutils.face.insightface.Face">[docs]</a><span class="nd">@dataclass</span>
@@ -152,7 +156,53 @@
 <span class="sd">            &gt;&gt;&gt; face = Face(bbox=(100, 200, 300, 400), det_score=0.99, keypoints=[])</span>
 <span class="sd">            &gt;&gt;&gt; bbox, label, score = face.to_det_tuple()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="s1">&#39;face&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">det_score</span></div></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_GENDER_NAMES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gender</span><span class="p">]</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s1"> (Age: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">age</span><span class="si">}</span><span class="s1">)&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;face&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">det_score</span></div></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_affine_transform</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">output_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rotation</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply geometric transformation to an image for face alignment.</span>
+
+<span class="sd">    This function performs a series of geometric transformations including scaling,</span>
+<span class="sd">    rotation, and translation to align a face image to a standardized position and size.</span>
+
+<span class="sd">    :param data: Input image array</span>
+<span class="sd">    :type data: numpy.ndarray</span>
+<span class="sd">    :param center: Center point of the transformation (x, y)</span>
+<span class="sd">    :type center: Tuple[float, float]</span>
+<span class="sd">    :param output_size: Size of the output image (width=height)</span>
+<span class="sd">    :type output_size: int</span>
+<span class="sd">    :param scale: Scaling factor for the transformation</span>
+<span class="sd">    :type scale: float</span>
+<span class="sd">    :param rotation: Rotation angle in degrees</span>
+<span class="sd">    :type rotation: float</span>
+
+<span class="sd">    :return: A tuple containing the transformed image and transformation parameters</span>
+<span class="sd">    :rtype: Tuple[numpy.ndarray, numpy.ndarray]</span>
+
+<span class="sd">    :example:</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; img = np.zeros((100, 100, 3))</span>
+<span class="sd">        &gt;&gt;&gt; transformed_img, params = _affine_transform(img, (50, 50), 112, 1.0, 0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">scale_ratio</span> <span class="o">=</span> <span class="n">scale</span>
+    <span class="n">rot</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rotation</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">SimilarityTransform</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">scale_ratio</span><span class="p">)</span>
+    <span class="n">cx</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale_ratio</span>
+    <span class="n">cy</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale_ratio</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">SimilarityTransform</span><span class="p">(</span><span class="n">translation</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">cx</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">cy</span><span class="p">))</span>
+    <span class="n">t3</span> <span class="o">=</span> <span class="n">SimilarityTransform</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="n">rot</span><span class="p">)</span>
+    <span class="n">t4</span> <span class="o">=</span> <span class="n">SimilarityTransform</span><span class="p">(</span><span class="n">translation</span><span class="o">=</span><span class="p">(</span><span class="n">output_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                                          <span class="n">output_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">t1</span> <span class="o">+</span> <span class="n">t2</span> <span class="o">+</span> <span class="n">t3</span> <span class="o">+</span> <span class="n">t4</span>
+    <span class="n">mparams</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="c1"># noinspection PyTypeChecker</span>
+    <span class="n">cropped</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">warpAffine</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mparams</span><span class="p">,</span> <span class="p">(</span><span class="n">output_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">),</span> <span class="n">borderValue</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cropped</span><span class="p">,</span> <span class="n">mparams</span>
 </pre></div>
 
 
