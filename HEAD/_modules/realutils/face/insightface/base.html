@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>realutils.face.insightface.base &mdash; realutils 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=c9d0a6ec" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js?v=2389946f"></script>
+      <script src="../../../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            realutils
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/installation/index.html">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../information/environment.result.html">Run Environment Information</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_doc/config/index.html">realutils.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_doc/detect/index.html">realutils.detect</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_doc/face/index.html">realutils.face</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_doc/metrics/index.html">realutils.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_doc/tagging/index.html">realutils.tagging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">realutils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">realutils.face.insightface.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+    
+    
+  <h1>Source code for realutils.face.insightface.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Face detection and analysis module.</span>
+
+<span class="sd">The module defines a dataclass Face that encapsulates all face-related attributes</span>
+<span class="sd">and provides utility methods for working with detection results.</span>
+
+<span class="sd">:const _REPO_ID: The default Hugging Face repository ID for the face detection model</span>
+<span class="sd">:const _DEFAULT_MODEL: The default model name to use for face detection</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">skimage.transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimilarityTransform</span>
+
+<span class="n">_REPO_ID</span> <span class="o">=</span> <span class="s1">&#39;deepghs/insightface&#39;</span>
+<span class="n">_DEFAULT_MODEL</span> <span class="o">=</span> <span class="s1">&#39;buffalo_l&#39;</span>
+<span class="n">_GENDER_NAMES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;M&#39;</span><span class="p">:</span> <span class="s1">&#39;male&#39;</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">:</span> <span class="s1">&#39;female&#39;</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="Face"><a class="viewcode-back" href="../../../../api_doc/face/insightface.html#realutils.face.insightface.Face">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Face</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A dataclass representing detected face information.</span>
+
+<span class="sd">    This class stores information about a detected face, including its location,</span>
+<span class="sd">    detection confidence, facial landmarks, and optional demographic attributes.</span>
+
+<span class="sd">    :param bbox: Bounding box coordinates in format (x1, y1, x2, y2)</span>
+<span class="sd">    :type bbox: Tuple[float, float, float, float]</span>
+<span class="sd">    :param det_score: Detection confidence score between 0 and 1</span>
+<span class="sd">    :type det_score: float</span>
+<span class="sd">    :param keypoints: List of facial keypoint coordinates as (x, y) tuples</span>
+<span class="sd">    :type keypoints: List[Tuple[float, float]]</span>
+<span class="sd">    :param gender: Gender classification result, either &#39;F&#39; for female or &#39;M&#39; for male</span>
+<span class="sd">    :type gender: Optional[Literal[&#39;F&#39;, &#39;M&#39;]]</span>
+<span class="sd">    :param age: Estimated age in years</span>
+<span class="sd">    :type age: Optional[int]</span>
+<span class="sd">    :param embedding: Feature embedding of this human face</span>
+<span class="sd">    :type embedding: Optional[np.ndarray]</span>
+
+<span class="sd">    :example:</span>
+<span class="sd">        &gt;&gt;&gt; face = Face(</span>
+<span class="sd">        ...     bbox=(100, 200, 300, 400),</span>
+<span class="sd">        ...     det_score=0.99,</span>
+<span class="sd">        ...     keypoints=[(150, 250), (200, 250)],</span>
+<span class="sd">        ...     gender=&#39;F&#39;,</span>
+<span class="sd">        ...     age=25</span>
+<span class="sd">        ... )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">bbox</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="n">det_score</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">keypoints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span>
+    <span class="n">gender</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="s1">&#39;M&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">age</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">embedding</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Face.to_det_tuple"><a class="viewcode-back" href="../../../../api_doc/face/insightface.html#realutils.face.insightface.Face.to_det_tuple">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_det_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert face detection result to a standardized detection tuple format.</span>
+
+<span class="sd">        This method formats the face detection information into a tuple that can be</span>
+<span class="sd">        used with general object detection frameworks or visualization tools.</span>
+
+<span class="sd">        :return: A tuple containing (bbox, label, confidence_score)</span>
+<span class="sd">        :rtype: Tuple[Tuple[float, float, float, float], str, float]</span>
+
+<span class="sd">        :example:</span>
+<span class="sd">            &gt;&gt;&gt; face = Face(bbox=(100, 200, 300, 400), det_score=0.99, keypoints=[])</span>
+<span class="sd">            &gt;&gt;&gt; bbox, label, score = face.to_det_tuple()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_GENDER_NAMES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gender</span><span class="p">]</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s1"> (Age: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">age</span><span class="si">}</span><span class="s1">)&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;face&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">det_score</span></div></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_affine_transform</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">output_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rotation</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply geometric transformation to an image for face alignment.</span>
+
+<span class="sd">    This function performs a series of geometric transformations including scaling,</span>
+<span class="sd">    rotation, and translation to align a face image to a standardized position and size.</span>
+
+<span class="sd">    :param data: Input image array</span>
+<span class="sd">    :type data: numpy.ndarray</span>
+<span class="sd">    :param center: Center point of the transformation (x, y)</span>
+<span class="sd">    :type center: Tuple[float, float]</span>
+<span class="sd">    :param output_size: Size of the output image (width=height)</span>
+<span class="sd">    :type output_size: int</span>
+<span class="sd">    :param scale: Scaling factor for the transformation</span>
+<span class="sd">    :type scale: float</span>
+<span class="sd">    :param rotation: Rotation angle in degrees</span>
+<span class="sd">    :type rotation: float</span>
+
+<span class="sd">    :return: A tuple containing the transformed image and transformation parameters</span>
+<span class="sd">    :rtype: Tuple[numpy.ndarray, numpy.ndarray]</span>
+
+<span class="sd">    :example:</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; img = np.zeros((100, 100, 3))</span>
+<span class="sd">        &gt;&gt;&gt; transformed_img, params = _affine_transform(img, (50, 50), 112, 1.0, 0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">scale_ratio</span> <span class="o">=</span> <span class="n">scale</span>
+    <span class="n">rot</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rotation</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">SimilarityTransform</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">scale_ratio</span><span class="p">)</span>
+    <span class="n">cx</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale_ratio</span>
+    <span class="n">cy</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale_ratio</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">SimilarityTransform</span><span class="p">(</span><span class="n">translation</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">cx</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">cy</span><span class="p">))</span>
+    <span class="n">t3</span> <span class="o">=</span> <span class="n">SimilarityTransform</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="n">rot</span><span class="p">)</span>
+    <span class="n">t4</span> <span class="o">=</span> <span class="n">SimilarityTransform</span><span class="p">(</span><span class="n">translation</span><span class="o">=</span><span class="p">(</span><span class="n">output_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                                          <span class="n">output_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">t1</span> <span class="o">+</span> <span class="n">t2</span> <span class="o">+</span> <span class="n">t3</span> <span class="o">+</span> <span class="n">t4</span>
+    <span class="n">mparams</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="c1"># noinspection PyTypeChecker</span>
+    <span class="n">cropped</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">warpAffine</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mparams</span><span class="p">,</span> <span class="p">(</span><span class="n">output_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">),</span> <span class="n">borderValue</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cropped</span><span class="p">,</span> <span class="n">mparams</span>
+</pre></div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, narugo1992.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+    <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: HEAD
+    <span class="fa fa-caret-down"></span>
+  </span>
+        <div class="rst-other-versions">
+                <dl>
+                    <dt>Tags</dt>
+                        <dd><a href="../../../../../v0.0.1/index.html">v0.0.1</a></dd>
+                        <dd><a href="../../../../../v0.0.2/index.html">v0.0.2</a></dd>
+                        <dd><a href="../../../../../v0.0.3/index.html">v0.0.3</a></dd>
+                        <dd><a href="../../../../../v0.0.4/index.html">v0.0.4</a></dd>
+                </dl>
+                <dl>
+                    <dt>Branches</dt>
+                        <dd><a href="../../../../../main/index.html">main</a></dd>
+                        <dd><a href="base.html">HEAD</a></dd>
+                </dl>
+        </div>
+    </div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

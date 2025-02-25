@@ -29,6 +29,7 @@ configuration file's structure and their versions.
 
     api_doc/config/index
     api_doc/detect/index
+    api_doc/face/index
     api_doc/metrics/index
     api_doc/tagging/index
 
