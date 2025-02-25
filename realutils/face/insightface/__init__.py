@@ -1,3 +1,4 @@
+from .analysis import isf_analysis_faces
 from .base import Face
 from .detect import isf_detect_faces
 from .extract import isf_extract_face, isf_face_batch_similarity, isf_face_similarity, isf_face_batch_same, \
