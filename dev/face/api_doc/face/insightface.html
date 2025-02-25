@@ -71,6 +71,30 @@
 <li class="toctree-l4"><a class="reference internal" href="#realutils.face.insightface.isf_genderage"><code class="docutils literal notranslate"><span class="pre">isf_genderage()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#isf-extract-face">isf_extract_face</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#realutils.face.insightface.isf_extract_face"><code class="docutils literal notranslate"><span class="pre">isf_extract_face()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#isf-face-batch-similarity">isf_face_batch_similarity</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#realutils.face.insightface.isf_face_batch_similarity"><code class="docutils literal notranslate"><span class="pre">isf_face_batch_similarity()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#isf-face-similarity">isf_face_similarity</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#realutils.face.insightface.isf_face_similarity"><code class="docutils literal notranslate"><span class="pre">isf_face_similarity()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#isf-face-batch-same">isf_face_batch_same</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#realutils.face.insightface.isf_face_batch_same"><code class="docutils literal notranslate"><span class="pre">isf_face_batch_same()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#isf-face-same">isf_face_same</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#realutils.face.insightface.isf_face_same"><code class="docutils literal notranslate"><span class="pre">isf_face_same()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#isf-analysis-faces">isf_analysis_faces</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#realutils.face.insightface.isf_analysis_faces"><code class="docutils literal notranslate"><span class="pre">isf_analysis_faces()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#isf-faces-visualize">isf_faces_visualize</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#realutils.face.insightface.isf_faces_visualize"><code class="docutils literal notranslate"><span class="pre">isf_faces_visualize()</span></code></a></li>
 </ul>
@@ -229,6 +253,131 @@ either a Face object or raw bounding box coordinates.</p>
 </dd>
 </dl>
 </dd></dl>
+
+</section>
+<section id="isf-extract-face">
+<h2>isf_extract_face<a class="headerlink" href="#isf-extract-face" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="realutils.face.insightface.isf_extract_face">
+<span class="sig-prename descclassname"><span class="pre">realutils.face.insightface.</span></span><span class="sig-name descname"><span class="pre">isf_extract_face</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BinaryIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">face</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#realutils.face.insightface.Face" title="realutils.face.insightface.base.Face"><span class="pre">Face</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'buffalo_l'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_write</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/realutils/face/insightface/extract.html#isf_extract_face"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#realutils.face.insightface.isf_extract_face" title="Permalink to this definition"></a></dt>
+<dd><p>Extract face embedding features from an image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ImageTyping</em>) – Input image</p></li>
+<li><p><strong>face</strong> (<a class="reference internal" href="#realutils.face.insightface.Face" title="realutils.face.insightface.Face"><em>Face</em></a>) – Face object containing keypoints</p></li>
+<li><p><strong>model_name</strong> (<em>str</em>) – Name of the model to use</p></li>
+<li><p><strong>no_write</strong> (<em>bool</em>) – If True, don’t write embedding to face object</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Face embedding vector</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="isf-face-batch-similarity">
+<h2>isf_face_batch_similarity<a class="headerlink" href="#isf-face-batch-similarity" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="realutils.face.insightface.isf_face_batch_similarity">
+<span class="sig-prename descclassname"><span class="pre">realutils.face.insightface.</span></span><span class="sig-name descname"><span class="pre">isf_face_batch_similarity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/realutils/face/insightface/extract.html#isf_face_batch_similarity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#realutils.face.insightface.isf_face_batch_similarity" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate similarity matrix for a batch of face embeddings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>embs</strong> (<em>Union</em><em>[</em><em>List</em><em>[</em><em>np.ndarray</em><em>]</em><em>, </em><em>np.ndarray</em><em>]</em>) – List or array of face embeddings</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Similarity matrix</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="isf-face-similarity">
+<h2>isf_face_similarity<a class="headerlink" href="#isf-face-similarity" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="realutils.face.insightface.isf_face_similarity">
+<span class="sig-prename descclassname"><span class="pre">realutils.face.insightface.</span></span><span class="sig-name descname"><span class="pre">isf_face_similarity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">emb1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emb2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/realutils/face/insightface/extract.html#isf_face_similarity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#realutils.face.insightface.isf_face_similarity" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate similarity between two face embeddings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>emb1</strong> (<em>np.ndarray</em>) – First face embedding</p></li>
+<li><p><strong>emb2</strong> (<em>np.ndarray</em>) – Second face embedding</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Similarity score</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="isf-face-batch-same">
+<h2>isf_face_batch_same<a class="headerlink" href="#isf-face-batch-same" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="realutils.face.insightface.isf_face_batch_same">
+<span class="sig-prename descclassname"><span class="pre">realutils.face.insightface.</span></span><span class="sig-name descname"><span class="pre">isf_face_batch_same</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'buffalo_l'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/realutils/face/insightface/extract.html#isf_face_batch_same"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#realutils.face.insightface.isf_face_batch_same" title="Permalink to this definition"></a></dt>
+<dd><p>Determine if faces in a batch are the same person using similarity threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>embs</strong> (<em>Union</em><em>[</em><em>List</em><em>[</em><em>np.ndarray</em><em>]</em><em>, </em><em>np.ndarray</em><em>]</em>) – List or array of face embeddings</p></li>
+<li><p><strong>model_name</strong> (<em>str</em>) – Name of the model to use</p></li>
+<li><p><strong>threshold</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Similarity threshold, if None uses default</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean matrix indicating matching faces</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="isf-face-same">
+<h2>isf_face_same<a class="headerlink" href="#isf-face-same" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="realutils.face.insightface.isf_face_same">
+<span class="sig-prename descclassname"><span class="pre">realutils.face.insightface.</span></span><span class="sig-name descname"><span class="pre">isf_face_same</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">emb1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emb2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'buffalo_l'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/realutils/face/insightface/extract.html#isf_face_same"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#realutils.face.insightface.isf_face_same" title="Permalink to this definition"></a></dt>
+<dd><p>Determine if two faces are the same person.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>emb1</strong> (<em>np.ndarray</em>) – First face embedding</p></li>
+<li><p><strong>emb2</strong> (<em>np.ndarray</em>) – Second face embedding</p></li>
+<li><p><strong>model_name</strong> (<em>str</em>) – Name of the model to use</p></li>
+<li><p><strong>threshold</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Similarity threshold, if None uses default</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean indicating if faces match</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="isf-analysis-faces">
+<h2>isf_analysis_faces<a class="headerlink" href="#isf-analysis-faces" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="realutils.face.insightface.isf_analysis_faces">
+<span class="sig-prename descclassname"><span class="pre">realutils.face.insightface.</span></span><span class="sig-name descname"><span class="pre">isf_analysis_faces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BinaryIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'buffalo_l'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(640,</span> <span class="pre">640)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">det_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nms_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_genderage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_extraction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#realutils.face.insightface.Face" title="realutils.face.insightface.base.Face"><span class="pre">Face</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/realutils/face/insightface/analysis.html#isf_analysis_faces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#realutils.face.insightface.isf_analysis_faces" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </section>
 <section id="isf-faces-visualize">

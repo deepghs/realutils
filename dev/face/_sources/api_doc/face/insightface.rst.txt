@@ -28,6 +28,48 @@ isf_genderage
 
 
 
+isf_extract_face
+--------------------------------------------
+
+.. autofunction:: isf_extract_face
+
+
+
+isf_face_batch_similarity
+--------------------------------------------
+
+.. autofunction:: isf_face_batch_similarity
+
+
+
+isf_face_similarity
+--------------------------------------------
+
+.. autofunction:: isf_face_similarity
+
+
+
+isf_face_batch_same
+--------------------------------------------
+
+.. autofunction:: isf_face_batch_same
+
+
+
+isf_face_same
+--------------------------------------------
+
+.. autofunction:: isf_face_same
+
+
+
+isf_analysis_faces
+--------------------------------------------
+
+.. autofunction:: isf_analysis_faces
+
+
+
 isf_faces_visualize
 --------------------------------------------
 
