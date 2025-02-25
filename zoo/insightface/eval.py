@@ -134,6 +134,7 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
     hf_client = get_hf_client()
     hf_fs = get_hf_fs()
     global_records = []
+    global_metrics = {}
     total_count, total_det_count = 0, 0
     for dsname in _AVAILABLE_DS:
         if hf_client.file_exists(
@@ -152,6 +153,7 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
             meta = json.loads(hf_fs.read_text(f'{repo_id}/{model_name}/{dsname}_metrics.json'))
             total_count += meta['images']
             total_det_count += meta['det_count']
+            global_metrics[dsname] = meta
             logging.warn(f'Result for {dsname!r} already exist, skipped.')
             continue
 
@@ -226,6 +228,7 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
             logging.info(f'Metrics:\n{pformat(metrics)}')
             total_count += image_count
             total_det_count += image_det_count
+            global_metrics[dsname] = metrics
 
             with TemporaryDirectory() as upload_dir:
                 dst_csv_file = os.path.join(upload_dir, f'{dsname}_sims.csv')
@@ -251,6 +254,7 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
         'images': total_count,
         'det_count': total_det_count,
         'det_ratio': total_det_count / total_count,
+        'datasets': global_metrics,
     }
     logging.info(f'Global Metrics:\n{pformat(metrics)}')
 
