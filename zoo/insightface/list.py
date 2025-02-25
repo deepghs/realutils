@@ -63,7 +63,11 @@ def sync(repo_id: str):
             print('* CPLFW (5749 ids/13233 images/6K pairs)[4]', file=f)
             print(f'', file=f)
 
-            print(f'Here is the full result on them and the recommended threshold.', file=f)
+            print(f'Below are the complete results and recommended thresholds.', file=f)
+            print(f'', file=f)
+            print(f'* Det: Success rate of face detection and landmark localization.', file=f)
+            print(f'* Rec-F1: Maximum F1 score achieved in face recognition.', file=f)
+            print(f'* Rec-Thresh: Optimal threshold determined by the maximum F1 score.', file=f)
             print(f'', file=f)
 
             df = pd.DataFrame(records)
