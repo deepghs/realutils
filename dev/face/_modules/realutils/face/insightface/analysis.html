@@ -86,7 +86,15 @@
     
     
   <h1>Source code for realutils.face.insightface.analysis</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Face Analysis Module</span>
+
+<span class="sd">This module provides functionality for comprehensive face analysis in images, including face detection,</span>
+<span class="sd">gender/age estimation, and feature extraction. It utilizes pre-trained models from Hugging Face Hub</span>
+<span class="sd">to perform these tasks.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">imgutils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageTyping</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
@@ -100,6 +108,34 @@
 <div class="viewcode-block" id="isf_analysis_faces"><a class="viewcode-back" href="../../../../api_doc/face/insightface.html#realutils.face.insightface.isf_analysis_faces">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">isf_analysis_faces</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">ImageTyping</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_MODEL</span><span class="p">,</span>
                        <span class="n">input_size</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">640</span><span class="p">),</span> <span class="n">det_thresh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">nms_thresh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">,</span>
                        <span class="n">no_genderage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">no_extraction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">silent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Face</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform comprehensive face analysis on an image, including detection, gender/age estimation, and feature extraction.</span>
+
+<span class="sd">    This function processes an image through multiple stages of face analysis:</span>
+<span class="sd">    1. Face detection to locate faces and their landmarks</span>
+<span class="sd">    2. Gender and age estimation (optional)</span>
+<span class="sd">    3. Face feature extraction (optional)</span>
+
+<span class="sd">    :param image: Input image for face analysis</span>
+<span class="sd">    :type image: ImageTyping</span>
+<span class="sd">    :param model_name: Name of the pre-trained model to use from Hugging Face Hub</span>
+<span class="sd">    :type model_name: str</span>
+<span class="sd">    :param input_size: Size to resize input image to before processing (width, height)</span>
+<span class="sd">    :type input_size: Tuple[int, int]</span>
+<span class="sd">    :param det_thresh: Detection confidence threshold for face detection</span>
+<span class="sd">    :type det_thresh: float</span>
+<span class="sd">    :param nms_thresh: Non-maximum suppression threshold for face detection</span>
+<span class="sd">    :type nms_thresh: float</span>
+<span class="sd">    :param no_genderage: If True, skip gender and age estimation</span>
+<span class="sd">    :type no_genderage: bool</span>
+<span class="sd">    :param no_extraction: If True, skip face feature extraction</span>
+<span class="sd">    :type no_extraction: bool</span>
+<span class="sd">    :param silent: If True, disable progress bar</span>
+<span class="sd">    :type silent: bool</span>
+
+<span class="sd">    :return: List of detected Face objects with analysis results</span>
+<span class="sd">    :rtype: List[Face]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">faces</span> <span class="o">=</span> <span class="n">isf_detect_faces</span><span class="p">(</span>
         <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
         <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>

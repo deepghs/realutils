@@ -152,6 +152,7 @@ detection confidence, facial landmarks, and optional demographic attributes.</p>
 <li><p><strong>keypoints</strong> (<em>List</em><em>[</em><em>Tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em><em>]</em>) – List of facial keypoint coordinates as (x, y) tuples</p></li>
 <li><p><strong>gender</strong> (<em>Optional</em><em>[</em><em>Literal</em><em>[</em><em>'F'</em><em>, </em><em>'M'</em><em>]</em><em>]</em>) – Gender classification result, either ‘F’ for female or ‘M’ for male</p></li>
 <li><p><strong>age</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – Estimated age in years</p></li>
+<li><p><strong>embedding</strong> (<em>Optional</em><em>[</em><em>np.ndarray</em><em>]</em>) – Feature embedding of this human face</p></li>
 </ul>
 </dd>
 <dt class="field-even">Example<span class="colon">:</span></dt>
@@ -377,7 +378,32 @@ either a Face object or raw bounding box coordinates.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="realutils.face.insightface.isf_analysis_faces">
 <span class="sig-prename descclassname"><span class="pre">realutils.face.insightface.</span></span><span class="sig-name descname"><span class="pre">isf_analysis_faces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BinaryIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'buffalo_l'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(640,</span> <span class="pre">640)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">det_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nms_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_genderage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_extraction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#realutils.face.insightface.Face" title="realutils.face.insightface.base.Face"><span class="pre">Face</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/realutils/face/insightface/analysis.html#isf_analysis_faces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#realutils.face.insightface.isf_analysis_faces" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Perform comprehensive face analysis on an image, including detection, gender/age estimation, and feature extraction.</p>
+<p>This function processes an image through multiple stages of face analysis:
+1. Face detection to locate faces and their landmarks
+2. Gender and age estimation (optional)
+3. Face feature extraction (optional)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ImageTyping</em>) – Input image for face analysis</p></li>
+<li><p><strong>model_name</strong> (<em>str</em>) – Name of the pre-trained model to use from Hugging Face Hub</p></li>
+<li><p><strong>input_size</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – Size to resize input image to before processing (width, height)</p></li>
+<li><p><strong>det_thresh</strong> (<em>float</em>) – Detection confidence threshold for face detection</p></li>
+<li><p><strong>nms_thresh</strong> (<em>float</em>) – Non-maximum suppression threshold for face detection</p></li>
+<li><p><strong>no_genderage</strong> (<em>bool</em>) – If True, skip gender and age estimation</p></li>
+<li><p><strong>no_extraction</strong> (<em>bool</em>) – If True, skip face feature extraction</p></li>
+<li><p><strong>silent</strong> (<em>bool</em>) – If True, disable progress bar</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of detected Face objects with analysis results</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#realutils.face.insightface.Face" title="realutils.face.insightface.Face">Face</a>]</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="isf-faces-visualize">
