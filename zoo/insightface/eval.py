@@ -206,6 +206,7 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
 
             df = pd.DataFrame(records)
             logging.info(f'Results:\n{df}')
+            global_records.extend([{**item, 'source': dsname} for item in df.to_dict('records')])
 
             metrics, plt_image = plot_by_df(df, title=f'Eval result of model {model_name!r} on dataset {dsname!r}')
             logging.info(f'Metrics:\n{pformat(metrics)}')
@@ -251,7 +252,7 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
 
 if __name__ == '__main__':
     logging.try_init_root(level=logging.INFO)
-    make_eval_result(model_name='buffalo_l')
+    make_eval_result(model_name='buffalo_s')
     # with mock_eval_dataset('cfpw') as d:
     #     print(d)
     #     os.system(f'ls -al {d!r}')
