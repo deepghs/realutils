@@ -1,3 +1,6 @@
+import json
+from typing import Union, List, Optional
+
 import cv2
 import numpy as np
 from huggingface_hub import hf_hub_download
@@ -22,6 +25,16 @@ def _open_extract_model(model_name: str):
     input_shape = tuple(input_cfg.shape[2:4][::-1])
     output_names = [o.name for o in session.get_outputs()]
     return session, input_name, input_shape, output_names
+
+
+@ts_lru_cache()
+def _get_default_threshold(model_name: str) -> float:
+    with open(hf_hub_download(
+            repo_id=_REPO_ID,
+            repo_type='model',
+            filename=f'{model_name}/metrics.json',
+    )) as f:
+        return json.load(f)['optimal_threshold']
 
 
 _ARCFACE_DST = np.array(
@@ -65,3 +78,27 @@ def isf_extract_face(image: ImageTyping, face: Face, model_name: str = _DEFAULT_
     if isinstance(face, Face) and not no_write:
         face.embedding = embedding
     return embedding
+
+
+def isf_face_batch_similarity(embs: Union[List[np.ndarray], np.ndarray]):
+    if isinstance(embs, (list, tuple)):
+        embs = np.stack(embs)
+
+    embs /= np.linalg.norm(embs, axis=-1, keepdims=True)
+    return embs @ embs.T
+
+
+def isf_face_similarity(emb1: np.ndarray, emb2: np.ndarray):
+    return isf_face_batch_similarity([emb1, emb2])[0, 1].item()
+
+
+def isf_face_batch_same(embs: Union[List[np.ndarray], np.ndarray], model_name: str = _DEFAULT_MODEL,
+                        threshold: Optional[float] = None):
+    if threshold is None:
+        threshold = _get_default_threshold(model_name=model_name)
+    return isf_face_batch_similarity(embs) >= threshold
+
+
+def isf_face_same(emb1: np.ndarray, emb2: np.ndarray, model_name: str = _DEFAULT_MODEL,
+                  threshold: Optional[float] = None) -> float:
+    return isf_face_batch_same([emb1, emb2], model_name=model_name, threshold=threshold)[0, 1].item()
