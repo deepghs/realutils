@@ -37,6 +37,8 @@ class Face:
     :type gender: Optional[Literal['F', 'M']]
     :param age: Estimated age in years
     :type age: Optional[int]
+    :param embedding: Feature embedding of this human face
+    :type embedding: Optional[np.ndarray]
 
     :example:
         >>> face = Face(
