@@ -52,6 +52,33 @@ def sync(repo_id: str):
             print('ONNX models from [insightface project](https://github.com/deepinsight/insightface).', file=f)
             print('', file=f)
 
+            print(f'# How To Use', file=f)
+            print(f'', file=f)
+
+            print('```shell', file=f)
+            print('pip install dghs-realutils>=0.1.0', file=f)
+            print('```', file=f)
+            print('', file=f)
+
+            print('```python', file=f)
+            print(
+                'from realutils.face.insightface import isf_face_batch_similarity, isf_analysis_faces, isf_faces_visualize',
+                file=f)
+            print('', file=f)
+            print('image_path = "/your/image/file"', file=f)
+            print('# get the analysis all the faces', file=f)
+            print('faces = isf_analysis_faces(image_path)', file=f)
+            print('print(faces)', file=f)
+            print('', file=f)
+            print('# compare them', file=f)
+            print('print(isf_face_batch_similarity([face.embedding for face in faces]))', file=f)
+            print('', file=f)
+            print('# visualize it', file=f)
+            print('isf_faces_visualize(image_path, faces).show()', file=f)
+            print('', file=f)
+            print('```', file=f)
+            print('', file=f)
+
             print(f'# Available Models', file=f)
             print(f'', file=f)
 
