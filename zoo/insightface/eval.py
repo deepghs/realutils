@@ -12,7 +12,7 @@ from PIL import Image
 from ditk import logging
 from hbutils.system import TemporaryDirectory
 from hfutils.archive import archive_unpack
-from hfutils.operate import upload_directory_as_directory, get_hf_client
+from hfutils.operate import upload_directory_as_directory, get_hf_client, get_hf_fs
 from huggingface_hub import hf_hub_download
 from imgutils.data import load_image
 from sklearn.metrics import auc, precision_recall_curve
@@ -132,7 +132,9 @@ def plot_by_df(df: pd.DataFrame, title: str):
 
 def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'buffalo_l', rescale_ratio: float = 7):
     hf_client = get_hf_client()
+    hf_fs = get_hf_fs()
     global_records = []
+    total_count, total_det_count = 0, 0
     for dsname in _AVAILABLE_DS:
         if hf_client.file_exists(
                 repo_id=repo_id,
@@ -147,10 +149,14 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
                     filename=f'{model_name}/{dsname}_sims.csv',
                 )).to_dict('records')
             ])
+            meta = json.loads(hf_fs.read_text(f'{repo_id}/{model_name}/{dsname}_metrics.json'))
+            total_count += meta['images']
+            total_det_count += meta['det_count']
             logging.warn(f'Result for {dsname!r} already exist, skipped.')
             continue
 
         logging.info(f'Eval {model_name!r} with dataset {dsname!r} ...')
+        image_count, image_det_count = 0, 0
         with mock_eval_dataset(dsname) as ds_dir:
             for image_file in tqdm(glob.glob(os.path.join(ds_dir, 'images', '**', '*'), recursive=True),
                                    desc=f'Embeddings for {dsname!r}'):
@@ -158,6 +164,7 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
                 if not mimetype.startswith('image/'):
                     continue
 
+                image_count += 1
                 image = load_image(image_file, force_background='white', mode='RGB')
                 padded_image = Image.new('RGB', (int(image.width * rescale_ratio),
                                                  int(image.height * rescale_ratio)), 'white')
@@ -172,6 +179,7 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
                     logging.info(f'No face detected in {image_file!r}, skipped.')
                     continue
 
+                image_det_count += 1
                 face_orders = []
                 for fi, face in enumerate(faces):
                     cx, cy = np.array(face.keypoints).mean(axis=0).tolist()
@@ -209,7 +217,15 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
             global_records.extend([{**item, 'source': dsname} for item in df.to_dict('records')])
 
             metrics, plt_image = plot_by_df(df, title=f'Eval result of model {model_name!r} on dataset {dsname!r}')
+            metrics = {
+                **metrics,
+                'images': image_count,
+                'det_count': image_det_count,
+                'det_ratio': image_det_count / image_count,
+            }
             logging.info(f'Metrics:\n{pformat(metrics)}')
+            total_count += image_count
+            total_det_count += image_det_count
 
             with TemporaryDirectory() as upload_dir:
                 dst_csv_file = os.path.join(upload_dir, f'{dsname}_sims.csv')
@@ -230,6 +246,12 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
 
     df = pd.DataFrame(global_records)
     metrics, plt_image = plot_by_df(df, title=f'Eval result of model {model_name!r} on ALL datasets')
+    metrics = {
+        **metrics,
+        'images': total_count,
+        'det_count': total_det_count,
+        'det_ratio': total_det_count / total_count,
+    }
     logging.info(f'Global Metrics:\n{pformat(metrics)}')
 
     with TemporaryDirectory() as upload_dir:
@@ -252,6 +274,7 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
 
 if __name__ == '__main__':
     logging.try_init_root(level=logging.INFO)
+    make_eval_result(model_name='buffalo_l')
     make_eval_result(model_name='buffalo_s')
     # with mock_eval_dataset('cfpw') as d:
     #     print(d)
