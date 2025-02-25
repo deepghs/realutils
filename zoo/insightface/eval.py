@@ -93,6 +93,7 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
                 src_file2 = os.path.join(ds_dir, record['file2'])
                 npy_file2 = os.path.splitext(src_file2)[0] + '.npy'
                 if not os.path.exists(npy_file1) or not os.path.exists(npy_file2):
+                    logging.warning(f'One of the file in {record!r} not exist, skipped.')
                     continue
 
                 emb1, emb2 = np.load(npy_file1), np.load(npy_file2)
