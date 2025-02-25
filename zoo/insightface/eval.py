@@ -85,7 +85,7 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
                 dst_emb_file = os.path.splitext(image_file)[0] + '.npy'
                 np.save(dst_emb_file, embedding)
 
-            df_src = pd.read_csv(os.path.join(ds_dir, 'paris.csv'))
+            df_src = pd.read_csv(os.path.join(ds_dir, 'pairs.csv'))
             records = []
             for record in tqdm(df_src.to_dict('records'), desc='Calculate values'):
                 src_file1 = os.path.join(ds_dir, record['file1'])
@@ -109,7 +109,9 @@ def make_eval_result(repo_id: str = 'deepghs/insightface', model_name: str = 'bu
             logging.info(f'Results:\n{df}')
 
             with TemporaryDirectory() as upload_dir:
-                df.to_csv(os.path.join(upload_dir, f'{dsname}_sims.csv'), index=False)
+                dst_csv_file = os.path.join(upload_dir, f'{dsname}_sims.csv')
+                os.makedirs(os.path.dirname(dst_csv_file), exist_ok=True)
+                df.to_csv(dst_csv_file, index=False)
                 upload_directory_as_directory(
                     repo_id=repo_id,
                     repo_type='model',
