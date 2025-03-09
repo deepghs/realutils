@@ -32,6 +32,11 @@ if __name__ == '__main__':
                 'facebook/dinov2-small',
                 'facebook/dinov2-base',
                 'facebook/dinov2-large',
+
+                'facebook/dino-vits16',
+                'facebook/dino-vitb16',
+                'facebook/dino-vits8',
+                'facebook/dino-vitb8',
             ]
         ],
         title='Benchmark for Dinov2 Models',

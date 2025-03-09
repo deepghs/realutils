@@ -11,6 +11,9 @@ Overview:
 
     .. image:: dinov2_benchmark.plot.py.svg
         :align: center
+
+    .. note::
+        DINO (not v2) models are supported as well.
 """
 
 import json
